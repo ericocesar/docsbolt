@@ -78,18 +78,6 @@ export class EeStubController {
     return { items, meta: { limit: 50, hasNextPage: false, hasPrevPage: false, nextCursor: null, prevCursor: null } };
   }
 
-  @HttpCode(HttpStatus.OK)
-  @Post('audit/retention')
-  async auditRetention() {
-    return { retentionDays: 90 };
-  }
-
-  @HttpCode(HttpStatus.OK)
-  @Post('audit/retention/update')
-  async auditRetentionUpdate() {
-    return { retentionDays: 90 };
-  }
-
   // ---------- Page verification ----------
 
   @HttpCode(HttpStatus.OK)
