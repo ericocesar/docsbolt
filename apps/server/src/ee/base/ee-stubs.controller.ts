@@ -66,20 +66,6 @@ export class EeStubController {
     return emptyPage();
   }
 
-  // ---------- SCIM ----------
-
-  @HttpCode(HttpStatus.OK)
-  @Post('scim-tokens')
-  async scimTokens() {
-    return emptyPage();
-  }
-
-  @HttpCode(HttpStatus.OK)
-  @Post('scim-tokens/create')
-  async scimTokensCreate() {
-    return emptyPage();
-  }
-
   // ---------- Audit ----------
 
   @HttpCode(HttpStatus.OK)
