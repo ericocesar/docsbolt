@@ -58,14 +58,6 @@ export class EeStubController {
     );
   }
 
-  // ---------- SSO ----------
-
-  @HttpCode(HttpStatus.OK)
-  @Post('sso/providers')
-  async ssoProviders() {
-    return emptyPage();
-  }
-
   // ---------- Audit ----------
 
   @HttpCode(HttpStatus.OK)
