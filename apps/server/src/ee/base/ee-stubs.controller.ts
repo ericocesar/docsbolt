@@ -31,7 +31,6 @@ const emptyPage = (limit = 50) => ({
  * empty/neutral payloads so the settings UI renders instead of 404ing.
  *
  * The audit endpoint reads from the real `audit` table when rows exist.
- * API keys are stored in the real `api_keys` table.
  */
 @UseGuards(JwtAuthGuard)
 @Controller()
@@ -111,26 +110,6 @@ export class EeStubController {
   @Post('audit/retention/update')
   async auditRetentionUpdate() {
     return { retentionDays: 90 };
-  }
-
-  // ---------- API keys ----------
-
-  @HttpCode(HttpStatus.OK)
-  @Post('api-keys')
-  async apiKeys(@AuthUser() user: User, @AuthWorkspace() workspace: Workspace) {
-    let items: unknown[] = [];
-    try {
-      items = await this.db
-        .selectFrom('apiKeys')
-        .selectAll()
-        .where('workspaceId', '=', workspace.id)
-        .orderBy('createdAt', 'desc')
-        .limit(50)
-        .execute();
-    } catch {
-      items = [];
-    }
-    return { items, meta: { limit: 50, hasNextPage: false, hasPrevPage: false, nextCursor: null, prevCursor: null } };
   }
 
   // ---------- Page verification ----------
