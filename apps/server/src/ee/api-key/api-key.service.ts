@@ -6,24 +6,65 @@ import { CreateApiKeyDto, UpdateApiKeyDto } from './dto';
 
 const PAGE_LIMIT = 50;
 
+const CREATOR_FIELDS = ['users.id', 'users.name', 'users.avatarUrl', 'users.email'] as const;
+
 @Injectable()
 export class ApiKeyService {
   constructor(@InjectKysely() private readonly db: KyselyDB) {}
+
+  private findCreator(creatorId: string) {
+    return this.db
+      .selectFrom('users')
+      .select([...CREATOR_FIELDS])
+      .where('users.id', '=', creatorId)
+      .executeTakeFirst();
+  }
+
+  private withCreator<T extends { creatorId: string }>(row: T, creator?: { id: string; name: string | null; avatarUrl: string | null; email: string }) {
+    return { ...row, creator: creator ?? null };
+  }
 
   async list(workspaceId: string, params: { cursor?: string; limit?: number }) {
     const limit = Math.min(params.limit ?? PAGE_LIMIT, PAGE_LIMIT);
     let q = this.db
       .selectFrom('apiKeys')
-      .selectAll()
-      .where('workspaceId', '=', workspaceId)
-      .where('deletedAt', 'is', null)
-      .orderBy('createdAt', 'desc')
+      .selectAll('apiKeys')
+      .leftJoin('users', 'users.id', 'apiKeys.creatorId')
+      .select([
+        'users.id as creatorUserId',
+        'users.name as creatorUserName',
+        'users.avatarUrl as creatorUserAvatarUrl',
+        'users.email as creatorUserEmail',
+      ])
+      .where('apiKeys.workspaceId', '=', workspaceId)
+      .where('apiKeys.deletedAt', 'is', null)
+      .orderBy('apiKeys.createdAt', 'desc')
       .limit(limit + 1);
-    if (params.cursor) q = q.where('createdAt', '<', params.cursor as any);
+    if (params.cursor) q = q.where('apiKeys.createdAt', '<', params.cursor as any);
 
     const rows = await q.execute();
-    const hasNextPage = rows.length > limit;
-    const items = hasNextPage ? rows.slice(0, limit) : rows;
+    const mapped = rows.map((row: any) => {
+      const {
+        creatorUserId,
+        creatorUserName,
+        creatorUserAvatarUrl,
+        creatorUserEmail,
+        ...item
+      } = row;
+      return {
+        ...item,
+        creator: creatorUserId
+          ? {
+              id: creatorUserId,
+              name: creatorUserName,
+              avatarUrl: creatorUserAvatarUrl,
+              email: creatorUserEmail,
+            }
+          : null,
+      };
+    });
+    const hasNextPage = mapped.length > limit;
+    const items = hasNextPage ? mapped.slice(0, limit) : mapped;
     return {
       items,
       meta: {
@@ -54,7 +95,8 @@ export class ApiKeyService {
       .returningAll()
       .executeTakeFirstOrThrow();
 
-    return { ...row, token };
+    const creator = await this.findCreator(row.creatorId);
+    return { ...this.withCreator(row, creator), token };
   }
 
   async update(userId: string, workspaceId: string, dto: UpdateApiKeyDto) {
@@ -67,7 +109,8 @@ export class ApiKeyService {
       .returningAll()
       .executeTakeFirst();
     if (!row) throw new NotFoundException('API key not found');
-    return row;
+    const creator = await this.findCreator(row.creatorId);
+    return this.withCreator(row, creator);
   }
 
   async revoke(workspaceId: string, apiKeyId: string) {
