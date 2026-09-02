@@ -37,27 +37,6 @@ const emptyPage = (limit = 50) => ({
 export class EeStubController {
   constructor(@InjectKysely() private readonly db: KyselyDB) {}
 
-  // ---------- MFA ----------
-
-  @HttpCode(HttpStatus.OK)
-  @Post('mfa/status')
-  async mfaStatus(@AuthUser() user: User) {
-    return {
-      enabled: false,
-      enforced: false,
-      setupCompleted: false,
-      hasBackupCodes: false,
-    };
-  }
-
-  @HttpCode(HttpStatus.OK)
-  @Post('mfa/setup')
-  async mfaSetup() {
-    throw new (await import('@nestjs/common')).NotImplementedException(
-      'MFA is not available in this build',
-    );
-  }
-
   // ---------- Audit ----------
 
   @HttpCode(HttpStatus.OK)
