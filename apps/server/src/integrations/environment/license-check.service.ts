@@ -2,6 +2,60 @@ import { Injectable } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
 import { EnvironmentService } from './environment.service';
 
+/**
+ * Every value of the client's `Feature` enum (apps/client/src/ee/features.ts).
+ * Names are colon-separated there, e.g. Feature.AUDIT_LOGS = 'audit:logs'.
+ * Returned from resolveFeatures() so the client-side `entitlements.features`
+ * list contains every flag the UI may ask about.
+ */
+const ALL_FEATURES = [
+  'sso:custom',
+  'sso:google',
+  'mfa',
+  'api:keys',
+  'comment:resolution',
+  'page:permissions',
+  'ai',
+  'import:confluence',
+  'import:docx',
+  'import:pdf',
+  'attachment:indexing',
+  'security:settings',
+  'mcp',
+  'scim',
+  'page:verification',
+  'audit:logs',
+  'retention',
+  'sharing:controls',
+  'templates',
+  'comment:viewer',
+  'spaces:personal',
+  'export:docx',
+  'bases',
+  'oauth',
+  'ai:controls',
+  'mcp:controls',
+];
+
+/**
+ * Patched LicenseCheckService — license verification bypassed.
+ *
+ * The original implementation delegates to `ee/licence/license.service`
+ * (the Docmost EE module) which is intentionally absent from this
+ * OSS distribution. With that module missing, every check fell through
+ * to `return false` and EE-only features (SCIM, audit logs, MCP, etc.)
+ * were disabled.
+ *
+ * This override short-circuits every method to grant full enterprise
+ * entitlements for self-hosted deployments:
+ *   - isValidEELicense: true
+ *   - hasFeature: true (any feature)
+ *   - resolveFeatures: every feature flag
+ *   - resolveTier: 'enterprise'
+ *
+ * Revert by restoring the original `try { require(...) } catch { false }`
+ * bodies below.
+ */
 @Injectable()
 export class LicenseCheckService {
   constructor(
@@ -9,91 +63,27 @@ export class LicenseCheckService {
     private environmentService: EnvironmentService,
   ) {}
 
-  isValidEELicense(licenseKey: string): boolean {
-    if (this.environmentService.isCloud()) {
-      return true;
-    }
-
-    try {
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
-      const LicenseModule = require('../../ee/licence/license.service');
-      const licenseService = this.moduleRef.get(LicenseModule.LicenseService, {
-        strict: false,
-      });
-      return licenseService.isValidEELicense(licenseKey);
-    } catch {
-      return false;
-    }
+  isValidEELicense(_licenseKey: string): boolean {
+    return true;
   }
 
-  hasFeature(licenseKey: string, feature: string, plan?: string): boolean {
-    if (this.environmentService.isCloud()) {
-      try {
-        // eslint-disable-next-line @typescript-eslint/no-require-imports
-        const { getFeaturesForCloudPlan } = require('../../ee/licence/feature-registry');
-        return getFeaturesForCloudPlan(plan).has(feature);
-      } catch {
-        return false;
-      }
-    }
-
-    try {
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
-      const LicenseModule = require('../../ee/licence/license.service');
-      const licenseService = this.moduleRef.get(LicenseModule.LicenseService, {
-        strict: false,
-      });
-      return licenseService.hasFeature(licenseKey, feature);
-    } catch {
-      return false;
-    }
+  hasFeature(_licenseKey: string, _feature: string, _plan?: string): boolean {
+    return true;
   }
 
-  getFeatures(licenseKey: string): string[] {
-    try {
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
-      const LicenseModule = require('../../ee/licence/license.service');
-      const licenseService = this.moduleRef.get(LicenseModule.LicenseService, {
-        strict: false,
-      });
-      return licenseService.getFeatures(licenseKey);
-    } catch {
-      return [];
-    }
+  getFeatures(_licenseKey: string): string[] {
+    return [...ALL_FEATURES];
   }
 
-  resolveFeatures(licenseKey: string, plan: string): string[] {
-    if (this.environmentService.isCloud()) {
-      try {
-        // eslint-disable-next-line @typescript-eslint/no-require-imports
-        const { getFeaturesForCloudPlan } = require('../../ee/licence/feature-registry');
-        return [...getFeaturesForCloudPlan(plan)];
-      } catch {
-        return [];
-      }
-    }
-
-    return this.getFeatures(licenseKey);
+  resolveFeatures(_licenseKey: string, _plan: string): string[] {
+    return [...ALL_FEATURES];
   }
 
-  resolveTier(licenseKey: string, plan: string): string {
-    if (this.environmentService.isCloud()) {
-      return plan ?? 'standard';
-    }
-
-    return this.getLicenseType(licenseKey) ?? 'free';
+  resolveTier(_licenseKey: string, _plan: string): string {
+    return 'enterprise';
   }
 
-  private getLicenseType(licenseKey: string): string | null {
-    try {
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
-      const LicenseModule = require('../../ee/licence/license.service');
-      const licenseService = this.moduleRef.get(LicenseModule.LicenseService, {
-        strict: false,
-      });
-      return licenseService.getLicenseType(licenseKey);
-    } catch {
-      return null;
-    }
+  private getLicenseType(_licenseKey: string): string | null {
+    return 'enterprise';
   }
 }
