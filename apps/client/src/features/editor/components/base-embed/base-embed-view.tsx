@@ -59,7 +59,7 @@ export function BaseEmbedView({ node, editor, deleteNode }: NodeViewProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   // Suppress the query while the slash command awaits the server-assigned
   // pageId; useBaseQuery would otherwise fire with an empty key.
-  const { data: base, isLoading, isError } = useBaseQuery(
+  const { isLoading, isError } = useBaseQuery(
     pendingKey ? "" : pageId ?? "",
   );
   const { data: page } = usePageQuery({ pageId: pageId ?? undefined });
@@ -132,7 +132,7 @@ export function BaseEmbedView({ node, editor, deleteNode }: NodeViewProps) {
       <BaseView
         pageId={pageId}
         embedded
-        editable={hasBases && editor.isEditable && (base?.permissions?.canEdit ?? false)}
+        editable={hasBases && editor.isEditable && (page?.permissions?.canEdit ?? false)}
       />
     );
   }
