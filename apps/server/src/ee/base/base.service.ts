@@ -303,9 +303,37 @@ export class BaseService {
     workspaceId: string,
     pageId: string,
   ) {
-    const statusId = 'status';
     // base_properties.id is varchar with no default — generate a short id.
     // Collision-safe enough for one seeded column per page.
+
+    // 1) Primary text column. The card title and the row-detail modal's
+    //    header both read from `cells[primaryProperty.id]`. Marking Status
+    //    primary would have the title input overwrite the status choice and
+    //    break grouping (the title would also render the choice id).
+    const nameId = 'name';
+    await this.db
+      .insertInto('baseProperties')
+      .values({
+        id: nameId,
+        pageId,
+        workspaceId,
+        name: 'Name',
+        type: 'text',
+        position: await this.nextPosition(
+          this.db,
+          'baseProperties',
+          pageId,
+        ),
+        typeOptions: {} as any,
+        isPrimary: true,
+        schemaVersion: 1,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      } as any)
+      .execute();
+
+    // 2) Grouping column. Drives the kanban columns via view.config.groupByPropertyId.
+    const statusId = 'status';
     await this.db
       .insertInto('baseProperties')
       .values({
@@ -327,7 +355,7 @@ export class BaseService {
           ],
           choiceOrder: ['todo', 'in_progress', 'done'],
         } as any,
-        isPrimary: true,
+        isPrimary: false,
         schemaVersion: 1,
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -654,10 +682,9 @@ export class BaseService {
       q = q.where('position', '>', input.cursor);
     }
 
-    // JSON-based filter: simplified — only supports "every/all" entries.
     if (input.filter && typeof input.filter === 'object') {
       const where = this.compileFilter(input.filter);
-      if (where) q = q.where(where);
+      if (where) q = q.where(where as any);
     }
 
     if (input.sorts?.length) {
@@ -687,10 +714,105 @@ export class BaseService {
     };
   }
 
-  private compileFilter(_filter: Record<string, unknown>) {
-    // Minimal implementation: skip filter for now. The UI sends a tree that
-    // would otherwise map to JSONB predicates; deferring to keep this lean.
-    return null;
+  /**
+   * Translate the UI's filter tree (FilterNode = FilterCondition | FilterGroup)
+   * into a SQL expression over the jsonb `cells` column. Predicates resolve
+   * via the migration's base_cell_text/numeric/timestamptz/bool/array
+   * helpers so absent or wrong-typed cells naturally fall through as NULL
+   * and never match (=, isWithin, ...). Group semantics match the client:
+   * AND is the default top-level join; OR is explicit via `op: 'or'`.
+   */
+  private compileFilter(filter: Record<string, unknown>): ReturnType<typeof sql> | null {
+    const compileNode = (node: unknown): ReturnType<typeof sql> | null => {
+      if (!node || typeof node !== 'object') return null;
+
+      const n = node as Record<string, unknown>;
+
+      if (Array.isArray(n.children)) {
+        const compiled = (n.children as unknown[])
+          .map((c) => compileNode(c))
+          .filter((c): c is ReturnType<typeof sql> => c !== null);
+        if (compiled.length === 0) return null;
+        if (compiled.length === 1) return compiled[0];
+
+        const sep = n.op === 'or' ? sql` OR ` : sql` AND `;
+        return sql`(${sql.join(compiled, sep)})`;
+      }
+
+      const propertyId = n.propertyId;
+      const op = n.op;
+      const value = n.value;
+      if (typeof propertyId !== 'string' || typeof op !== 'string') return null;
+
+      const text = (v: unknown) => (v === undefined || v === null ? '' : String(v));
+      const num = (v: unknown) => (typeof v === 'number' ? v : Number(v));
+      const ts = (v: unknown) => (v === undefined || v === null ? '' : String(v));
+
+      switch (op) {
+        case 'eq':
+          return sql`base_cell_text(cells, ${propertyId}) = ${text(value)}`;
+        case 'neq':
+          return sql`(base_cell_text(cells, ${propertyId}) IS NOT NULL AND base_cell_text(cells, ${propertyId}) <> ${text(value)})`;
+        case 'gt':
+          return sql`base_cell_numeric(cells, ${propertyId}) > ${num(value)}`;
+        case 'gte':
+          return sql`base_cell_numeric(cells, ${propertyId}) >= ${num(value)}`;
+        case 'lt':
+          return sql`base_cell_numeric(cells, ${propertyId}) < ${num(value)}`;
+        case 'lte':
+          return sql`base_cell_numeric(cells, ${propertyId}) <= ${num(value)}`;
+        case 'contains':
+          return sql`base_cell_text(cells, ${propertyId}) LIKE ${'%' + text(value)}`;
+        case 'ncontains':
+          return sql`(base_cell_text(cells, ${propertyId}) IS NULL OR base_cell_text(cells, ${propertyId}) NOT LIKE ${'%' + text(value)})`;
+        case 'startsWith':
+          return sql`base_cell_text(cells, ${propertyId}) LIKE ${text(value) + '%'}`;
+        case 'endsWith':
+          return sql`base_cell_text(cells, ${propertyId}) LIKE ${'%' + text(value)}`;
+        case 'isEmpty':
+          return sql`base_cell_text(cells, ${propertyId}) IS NULL`;
+        case 'isNotEmpty':
+          return sql`base_cell_text(cells, ${propertyId}) IS NOT NULL`;
+        case 'before':
+          return sql`base_cell_timestamptz(cells, ${propertyId}) < ${ts(value)}`;
+        case 'after':
+          return sql`base_cell_timestamptz(cells, ${propertyId}) > ${ts(value)}`;
+        case 'onOrBefore':
+          return sql`base_cell_timestamptz(cells, ${propertyId}) <= ${ts(value)}`;
+        case 'onOrAfter':
+          return sql`base_cell_timestamptz(cells, ${propertyId}) >= ${ts(value)}`;
+        case 'isWithin': {
+          const range = value as { from?: string; to?: string } | undefined;
+          if (!range) return null;
+          const parts: ReturnType<typeof sql>[] = [];
+          if (range.from) {
+            parts.push(sql`base_cell_timestamptz(cells, ${propertyId}) >= ${ts(range.from)}`);
+          }
+          if (range.to) {
+            parts.push(sql`base_cell_timestamptz(cells, ${propertyId}) <= ${ts(range.to)}`);
+          }
+          if (parts.length === 0) return null;
+          if (parts.length === 1) return parts[0];
+          return sql`(${sql.join(parts, sql` AND `)})`;
+        }
+        case 'any': {
+          const needle = Array.isArray(value) ? value : [value];
+          return sql`base_cell_array(cells, ${propertyId}) @> ${JSON.stringify(needle)}::jsonb`;
+        }
+        case 'none': {
+          const needle = Array.isArray(value) ? value : [value];
+          return sql`NOT (base_cell_array(cells, ${propertyId}) @> ${JSON.stringify(needle)}::jsonb)`;
+        }
+        case 'all': {
+          const needle = Array.isArray(value) ? value : [value];
+          return sql`base_cell_array(cells, ${propertyId}) @> ${JSON.stringify(needle)}::jsonb`;
+        }
+        default:
+          return null;
+      }
+    };
+
+    return compileNode(filter);
   }
 
   async reorderRow(
