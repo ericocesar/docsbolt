@@ -5,6 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectKysely } from 'nestjs-kysely';
+import { sql } from 'kysely';
 import { KyselyDB, KyselyTransaction } from '../../database/types/kysely.types';
 import { PageRepo } from '../../database/repos/page/page.repo';
 import { generateBasePropertyId, generateSlugId } from '../../common/helpers/nanoid.utils';
@@ -573,10 +574,13 @@ export class BaseService {
   ) {
     await this.ensurePageAccess(input.pageId, workspaceId, userId, true);
 
+    // Cells arrive as a PATCH (client sends only the edited property ids).
+    // Merge via jsonb_set_many (migration 20260529T125146) so untouched
+    // cells survive; a null patch value deletes that key.
     const updated = await this.db
       .updateTable('baseRows')
       .set({
-        cells: input.cells as any,
+        cells: sql`jsonb_set_many(base_rows.cells, ${input.cells ?? {}}::jsonb)` as any,
         lastUpdatedById: userId,
         updatedAt: new Date(),
         ...(input.position ? { position: input.position } : {}),
@@ -764,7 +768,14 @@ export class BaseService {
     const update: Record<string, unknown> = { updatedAt: new Date() };
     if (input.name !== undefined) update.name = input.name;
     if (input.type !== undefined) update.type = input.type;
-    if (input.config !== undefined) update.config = input.config ?? {};
+    // Config arrives as a PATCH (e.g. only { hiddenChoiceIds }). Merge so
+    // unrelated keys like groupByPropertyId survive; null resets the config.
+    if (input.config !== undefined) {
+      update.config =
+        input.config === null
+          ? (sql`'{}'::jsonb` as any)
+          : (sql`jsonb_set_many(base_views.config, ${input.config}::jsonb)` as any);
+    }
     if (input.position !== undefined) update.position = input.position;
 
     const updated = await this.db
