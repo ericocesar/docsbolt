@@ -4,6 +4,7 @@
  */
 
 import type { ColumnType } from 'kysely';
+import type { PageEmbeddings } from './embeddings.types';
 
 export type Generated<T> =
   T extends ColumnType<infer S, infer I, infer U>
@@ -696,6 +697,7 @@ export interface OauthTokens {
 export interface DB {
   aiChats: AiChats;
   aiChatMessages: AiChatMessages;
+  pageEmbeddings: PageEmbeddings;
   apiKeys: ApiKeys;
   attachments: Attachments;
   audit: Audit;

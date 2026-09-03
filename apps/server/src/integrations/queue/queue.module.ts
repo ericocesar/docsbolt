@@ -4,10 +4,13 @@ import { EnvironmentService } from '../environment/environment.service';
 import { createRetryStrategy, parseRedisUrl } from '../../common/helpers';
 import { QueueName } from './constants';
 import { GeneralQueueProcessor } from './processors/general-queue.processor';
+import { AiQueueProcessor } from './processors/ai-queue.processor';
+import { EmbeddingsModule } from '../../ee/ai/embeddings/embeddings.module';
 
 @Global()
 @Module({
   imports: [
+    EmbeddingsModule,
     BullModule.forRootAsync({
       useFactory: (environmentService: EnvironmentService) => {
         const redisConfig = parseRedisUrl(environmentService.getRedisUrl());
@@ -104,6 +107,6 @@ import { GeneralQueueProcessor } from './processors/general-queue.processor';
     }),
   ],
   exports: [BullModule],
-  providers: [GeneralQueueProcessor],
+  providers: [GeneralQueueProcessor, AiQueueProcessor],
 })
 export class QueueModule {}

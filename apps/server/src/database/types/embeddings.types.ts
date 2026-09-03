@@ -1,20 +1,16 @@
-import { Json, Timestamp, Generated } from '@docmost/db/types/db';
+import { Timestamp, Generated } from '@docmost/db/types/db';
 
-// embeddings type
+// `embedding` is stored as pgvector `vector(N)` in the database but exposed as
+// number[] at the TypeScript level. Conversion is handled at the repository
+// layer via raw SQL (`sql\`${val}::vector\``) so Kysely's JSON marshalling
+// does not interfere with pgvector's array literal syntax.
 export interface PageEmbeddings {
   id: Generated<string>;
   pageId: string;
   spaceId: string;
-  modelName: string;
-  modelDimensions: number;
   workspaceId: string;
-  attachmentId: string;
   embedding: number[];
-  chunkIndex: Generated<number>;
-  chunkStart: Generated<number>;
-  chunkLength: Generated<number>;
-  metadata: Generated<Json>;
+  contentHash: string | null;
   createdAt: Generated<Timestamp>;
   updatedAt: Generated<Timestamp>;
-  deletedAt: Timestamp | null;
 }

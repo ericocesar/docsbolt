@@ -3,8 +3,15 @@ import * as bcrypt from 'bcrypt';
 import sanitize = require('sanitize-filename');
 import { FastifyRequest } from 'fastify';
 import { Readable, Transform } from 'stream';
+import * as dotenv from 'dotenv';
 
 export const envPath = path.resolve(process.cwd(), '..', '..', '.env');
+
+// Load the app .env with override:true so real project values win over
+// stale vars inherited from the shell environment (e.g. a global
+// OPENAI_API_KEY exported by other tooling would otherwise shadow the
+// key configured here, since @nestjs/config prefers process.env).
+dotenv.config({ path: envPath, override: true });
 
 export async function hashPassword(password: string) {
   const saltRounds = 12;
