@@ -318,14 +318,14 @@ export class BaseService {
           'baseProperties',
           pageId,
         ),
-        typeOptions: JSON.stringify({
+        typeOptions: {
           choices: [
             { id: 'todo', name: 'To do', color: 'gray', category: 'todo' },
             { id: 'in_progress', name: 'In progress', color: 'yellow', category: 'inProgress' },
             { id: 'done', name: 'Done', color: 'green', category: 'complete' },
           ],
           choiceOrder: ['todo', 'in_progress', 'done'],
-        }) as any,
+        } as any,
         isPrimary: true,
         schemaVersion: 1,
         createdAt: new Date(),
@@ -346,7 +346,7 @@ export class BaseService {
           'baseViews',
           pageId,
         ),
-        config: JSON.stringify({ groupByPropertyId: statusId }) as any,
+        config: { groupByPropertyId: statusId } as any,
         creatorId: userId,
         createdAt: new Date(),
         updatedAt: new Date(),
