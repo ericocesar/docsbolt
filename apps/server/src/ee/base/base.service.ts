@@ -7,7 +7,7 @@ import {
 import { InjectKysely } from 'nestjs-kysely';
 import { KyselyDB, KyselyTransaction } from '../../database/types/kysely.types';
 import { PageRepo } from '../../database/repos/page/page.repo';
-import { generateSlugId } from '../../common/helpers/nanoid.utils';
+import { generateBasePropertyId, generateSlugId } from '../../common/helpers/nanoid.utils';
 import { generateJitteredKeyBetween } from 'fractional-indexing-jittered';
 
 /**
@@ -417,7 +417,7 @@ export class BaseService {
       const property = await tx
         .insertInto('baseProperties')
         .values({
-
+          id: generateBasePropertyId(),
           pageId: input.pageId,
           workspaceId,
           name: input.name,
