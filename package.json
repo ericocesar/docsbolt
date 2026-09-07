@@ -16,7 +16,10 @@
     "server:start": "nx run server:start:prod",
     "email:dev": "nx run server:email:dev",
     "dev": "pnpm concurrently -n \"frontend,backend\" -c \"cyan,green\" \"pnpm run client:dev\" \"pnpm run server:dev\"",
-    "clean": "rm -rf apps/*/dist packages/*/dist apps/client/node_modules/.vite"
+    "clean": "rm -rf apps/*/dist packages/*/dist apps/client/node_modules/.vite",
+    "deploy:stack": "bash scripts/deployportainer.sh",
+    "deploy:stack:dev": "IMAGE_NAME_OVERRIDE=ericocesar/plankabolt bash scripts/build-and-push-ghcr.sh && pnpm deploy:stack dev",
+    "deploy:stack:prod": "IMAGE_NAME_OVERRIDE=ericocesar/boltplan bash scripts/build-and-push-ghcr.sh && pnpm deploy:stack prod"
   },
   "dependencies": {
     "@braintree/sanitize-url": "7.1.2",

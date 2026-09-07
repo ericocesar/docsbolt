@@ -378,13 +378,21 @@ generate_commit_doc_template_style() {
 # -------------------------
 PROJECT_NAME_RESOLVED="$(detect_project_name)"
 IMAGE_NAMESPACE_RESOLVED="$(detect_namespace)"
-if [[ "${PROJECT_NAME_RESOLVED}" == "boltcrm" ]]; then
-  PROJECT_NAME_RESOLVED="bcrm"
-fi
 IMAGE_NAME="${IMAGE_NAME:-${IMAGE_NAMESPACE_RESOLVED}/${PROJECT_NAME_RESOLVED}}"
 
-GIT_SHA_SHORT="$(git rev-parse --short=7 HEAD)"
-BRANCH="$(git rev-parse --abbrev-ref HEAD | tr '[:upper:]' '[:lower:]' | tr '/' '-')"
+if [[ -n "${IMAGE_NAME_OVERRIDE:-}" ]]; then
+  IMAGE_NAME="${IMAGE_NAME_OVERRIDE}"
+fi
+
+GIT_SHA_SHORT="$(git rev-parse --short=7 HEAD 2>/dev/null || true)"
+[[ -n "${GIT_SHA_SHORT}" ]] || { echo "❌ Repositório sem commits ou HEAD inválido."; exit 1; }
+
+RAW_BRANCH="$(git rev-parse --abbrev-ref HEAD 2>/dev/null || true)"
+if [[ -z "${RAW_BRANCH}" || "${RAW_BRANCH}" == "HEAD" ]]; then
+  RAW_BRANCH="$(git config --get init.defaultBranch 2>/dev/null || echo main)"
+fi
+BRANCH="$(echo "${RAW_BRANCH}" | tr '[:upper:]' '[:lower:]' | tr '/' '-')"
+
 TAG_SHA="sha-${GIT_SHA_SHORT}"
 TAG_BRANCH="${BRANCH}"
 IMAGE="${REGISTRY}/${IMAGE_NAME}"
@@ -454,7 +462,7 @@ TAG_FILE="${HISTORY_DIR}/latest-tag"
 has_relevant_changes() {
   local porcelain
   porcelain="$(git status --porcelain=v1 | sed '/^[[:space:]]*$/d')"
-  porcelain="$(echo "${porcelain}" | grep -Ev "^[[:space:]]*(M|A|D|R|C|\\?\\?)[[:space:]]+(${HISTORY_DIR}/|${TAG_FILE}$)" || true)"
+  porcelain="$(echo "${porcelain}" | grep -Ev "^[[:space:]]*(M|A|D|R|C|\\?\\?)[[:space:]]+(${HISTORY_DIR}/|${TAG_FILE}|public/build-info\.json)$" || true)"
   [[ -n "${porcelain}" ]]
 }
 
@@ -462,17 +470,21 @@ if ! has_relevant_changes && git diff --cached --quiet; then
   echo "    ✓ Nenhuma alteração relevante para commitar."
 else
   echo "    ▸ Alterações detectadas. Fazendo commit e push..."
-  git add -A
+  git add -A -- ':!public/build-info.json' ':!docs/historico/*'
 
-  COMMIT_MSG="Build $(date '+%Y-%m-%d %H:%M:%S') - ${TAG_SHA}"
-  git commit -m "${COMMIT_MSG}" || echo "    ⚠️  Erro ao fazer commit (pode já estar commitado)"
+  if git diff --cached --quiet; then
+    echo "    ✓ Apenas artefatos locais do build foram alterados; nada para commitar."
+  else
+    COMMIT_MSG="Build $(date '+%Y-%m-%d %H:%M:%S') - ${TAG_SHA}"
+    git commit -m "${COMMIT_MSG}" || echo "    ⚠️  Erro ao fazer commit (pode já estar commitado)"
 
-  GIT_SHA_SHORT="$(git rev-parse --short=7 HEAD)"
-  TAG_SHA="sha-${GIT_SHA_SHORT}"
+    GIT_SHA_SHORT="$(git rev-parse --short=7 HEAD)"
+    TAG_SHA="sha-${GIT_SHA_SHORT}"
 
-  echo "    ▸ Fazendo push para origin/${BRANCH}..."
-  git push origin "${BRANCH}" || echo "    ⚠️  Erro ao fazer push. Continuando com o build..."
-  echo "    ✓ Commit e push concluídos."
+    echo "    ▸ Fazendo push para origin/${BRANCH}..."
+    git push origin "${BRANCH}" || echo "    ⚠️  Erro ao fazer push. Continuando com o build..."
+    echo "    ✓ Commit e push concluídos."
+  fi
 fi
 
 BUILD_COMMIT_REF="HEAD"
@@ -564,6 +576,6 @@ echo ">>> Gerando documento de historico do commit..."
 generate_commit_doc_template_style "${BUILD_COMMIT_REF}" "${TAG_SHA}" "${IMAGE}" "${BRANCH}"
 
 echo ""
-echo "para fazer deploy:"
-echo "pnpm deploy:dev"
-echo "pnpm deploy:prod"
+echo "Para fazer deploy:"
+echo "  pnpm deploy:stack:dev   # ou: pnpm deploy:stack dev"
+echo "  pnpm deploy:stack:prod  # ou: pnpm deploy:stack prod"

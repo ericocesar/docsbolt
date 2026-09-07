@@ -2,6 +2,7 @@
 .env.dev
 .env.prod
 data
+/.github/infra
 # compiled output
 dist
 /node_modules

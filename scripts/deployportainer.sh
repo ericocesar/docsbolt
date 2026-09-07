@@ -33,7 +33,8 @@ Formato do arquivo .env:
   PORTAINER_ENDPOINT_ID=1
 
 Formato esperado no compose:
-  image: ghcr.io/ericocesar/consigcrm:\${IMAGE_TAG}
+  image: ghcr.io/ericocesar/boltplan:${IMAGE_TAG}
+  image: ghcr.io/ericocesar/plankabolt:${IMAGE_TAG}
 
 Dependências:
   curl
@@ -197,7 +198,11 @@ if not match:
 
 image_ref = match.group(1).strip()
 image_ref = image_ref.split("@", 1)[0]
-image_ref = image_ref.split(":", 1)[0]
+image_ref = re.sub(r"\$\{[^}]+\}", "", image_ref)
+last_slash = image_ref.rfind("/")
+last_colon = image_ref.rfind(":")
+if last_colon > last_slash:
+    image_ref = image_ref[:last_colon]
 stack_name = image_ref.rsplit("/", 1)[-1].strip()
 
 print(stack_name, end="")
@@ -259,10 +264,13 @@ find_stack_id() {
   local raw
   local url="${PORTAINER_URL%/}/api/stacks"
 
+  local filters
+  filters="$(jq -nc --arg n "$stack_name" '{name:$n}')"
+
   raw="$(
     curl -sS -G -w '\n%{http_code}' \
       -H "X-API-Key: $PORTAINER_API_KEY" \
-      --data-urlencode "filters={\"name\":\"${stack_name}\"}" \
+      --data-urlencode "filters=${filters}" \
       "$url"
   )"
 
@@ -297,7 +305,8 @@ create_stack() {
         stackFileContent: $content,
         swarmID: $swarm_id,
         env: [],
-        fromAppTemplate: false
+        fromAppTemplate: false,
+        pullImage: true
       }'
   )"
 
