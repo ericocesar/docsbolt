@@ -418,40 +418,44 @@ fi
 echo ""
 echo ">>> Executando varredura de segurança com Trivy..."
 
-if ! command -v trivy &> /dev/null; then
-  echo ""
-  echo "  ⚠️  Trivy não encontrado. Instale com:"
-  echo "     brew install aquasecurity/trivy/trivy"
-  echo ""
-  echo "  Abortando build por segurança."
-  exit 1
+if [[ "${SKIP_TRIVY:-0}" == "1" ]]; then
+  echo "    ⚠️  SKIP_TRIVY=1 — varredura ignorada por opção do operador (uso por conta e risco)."
+else
+  if ! command -v trivy &> /dev/null; then
+    echo ""
+    echo "  ⚠️  Trivy não encontrado. Instale com:"
+    echo "     brew install aquasecurity/trivy/trivy"
+    echo ""
+    echo "  Abortando build por segurança."
+    exit 1
+  fi
+
+  TRIVY_EXIT_CODE=0
+  trivy fs \
+    --scanners misconfig,vuln \
+    --severity HIGH,CRITICAL \
+    --exit-code 1 \
+    --skip-version-check \
+    --skip-dirs '.git,.venv,node_modules,.mimocode,dist,build,backups,.context,.turbo,.pytest_cache,.extracted,.agent,.agents,.claude,.dbg,.gemini,.trae,.vscode,scratch,public' \
+    . || TRIVY_EXIT_CODE=$?
+
+  if [[ "${TRIVY_EXIT_CODE}" -eq 1 ]]; then
+    echo ""
+    echo "============================================="
+    echo "  ❌ Trivy encontrou vulnerabilidades HIGH/CRITICAL!"
+    echo "============================================="
+    exit 1
+  elif [[ "${TRIVY_EXIT_CODE}" -ne 0 ]]; then
+    echo ""
+    echo "============================================="
+    echo "  ⚠️  Erro na varredura Trivy (exit ${TRIVY_EXIT_CODE})."
+    echo "     Varredura falhou — abortando build por segurança."
+    echo "============================================="
+    exit "${TRIVY_EXIT_CODE}"
+  fi
+
+  echo "    ✓ Nenhuma vulnerabilidade HIGH/CRITICAL encontrada."
 fi
-
-TRIVY_EXIT_CODE=0
-trivy fs \
-  --scanners misconfig,vuln \
-  --severity HIGH,CRITICAL \
-  --exit-code 1 \
-  --skip-version-check \
-  --skip-dirs '.git,.venv,node_modules,.mimocode,dist,build,backups,.context,.turbo,.pytest_cache,.extracted,.agent,.agents,.claude,.dbg,.gemini,.trae,.vscode,scratch,public' \
-  . || TRIVY_EXIT_CODE=$?
-
-if [[ "${TRIVY_EXIT_CODE}" -eq 1 ]]; then
-  echo ""
-  echo "============================================="
-  echo "  ❌ Trivy encontrou vulnerabilidades HIGH/CRITICAL!"
-  echo "============================================="
-  exit 1
-elif [[ "${TRIVY_EXIT_CODE}" -ne 0 ]]; then
-  echo ""
-  echo "============================================="
-  echo "  ⚠️  Erro na varredura Trivy (exit ${TRIVY_EXIT_CODE})."
-  echo "     Varredura falhou — abortando build por segurança."
-  echo "============================================="
-  exit "${TRIVY_EXIT_CODE}"
-fi
-
-echo "    ✓ Nenhuma vulnerabilidade HIGH/CRITICAL encontrada."
 
 echo ""
 echo ">>> Verificando alterações no repositório..."
