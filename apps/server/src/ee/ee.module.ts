@@ -8,6 +8,7 @@ import { MfaModule } from './mfa/mfa.module';
 import { PageVerificationModule } from './page-verification/page-verification.module';
 import { AiChatModule } from './ai-chat/ai-chat.module';
 import { EmbeddingsModule } from './ai/embeddings/embeddings.module';
+import { TemplateModule } from './template/template.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { EmbeddingsModule } from './ai/embeddings/embeddings.module';
     PageVerificationModule,
     AiChatModule,
     EmbeddingsModule,
+    TemplateModule,
   ],
 })
 export class EeModule {}
