@@ -183,4 +183,36 @@ describe('JwtAuthGuard.handleRequest', () => {
       guard.handleRequest(null, oauthUser(['read']), null, createCtx()),
     ).toThrow('insufficient_scope');
   });
+
+  describe('canActivate with opaque API keys', () => {
+    it('authenticates opaque api key directly in canActivate', async () => {
+      const { guard } = createGuard();
+      const apiKeyService = {
+        validateOpaqueToken: jest.fn().mockResolvedValue({
+          user: { id: 'user_1' },
+          workspace: { id: 'ws_1' },
+        }),
+      };
+      const moduleRef = {
+        get: jest.fn().mockReturnValue(apiKeyService),
+      } as any;
+      (guard as any).moduleRef = moduleRef;
+
+      const req: any = {
+        headers: { authorization: 'Bearer opaque_random_api_key_32_bytes' },
+        raw: {},
+      };
+      const ctx: any = {
+        switchToHttp: () => ({ getRequest: () => req }),
+        getHandler: () => handlerSentinel,
+        getClass: () => classSentinel,
+      };
+
+      const result = await guard.canActivate(ctx);
+      expect(result).toBe(true);
+      expect(req.user.authType).toBe(JwtType.API_KEY);
+      expect(req.user.user.id).toBe('user_1');
+      expect(req.user.workspace.id).toBe('ws_1');
+    });
+  });
 });

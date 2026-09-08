@@ -9,6 +9,7 @@ import { PageVerificationModule } from './page-verification/page-verification.mo
 import { AiChatModule } from './ai-chat/ai-chat.module';
 import { EmbeddingsModule } from './ai/embeddings/embeddings.module';
 import { TemplateModule } from './template/template.module';
+import { McpModule } from './mcp/mcp.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { TemplateModule } from './template/template.module';
     AiChatModule,
     EmbeddingsModule,
     TemplateModule,
+    McpModule,
   ],
 })
 export class EeModule {}

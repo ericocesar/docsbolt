@@ -13,9 +13,10 @@ import {
 } from '../decorators/oauth-scope.decorator';
 import { REQUIRE_SESSION_AUTH_KEY } from '../decorators/require-session-auth.decorator';
 import { JwtType } from '../../core/auth/dto/jwt-payload';
-import { Reflector } from '@nestjs/core';
+import { ModuleRef, Reflector } from '@nestjs/core';
 import { EnvironmentService } from '../../integrations/environment/environment.service';
 import { addDays } from 'date-fns';
+import { extractBearerTokenFromHeader } from '../helpers';
 
 @Injectable()
 export class JwtAuthGuard extends AuthGuard('jwt') {
@@ -24,11 +25,12 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
   constructor(
     private reflector: Reflector,
     private environmentService: EnvironmentService,
+    private moduleRef?: ModuleRef,
   ) {
     super();
   }
 
-  canActivate(context: ExecutionContext) {
+  async canActivate(context: ExecutionContext): Promise<boolean> {
     const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
       context.getHandler(),
       context.getClass(),
@@ -38,7 +40,46 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
       return true;
     }
 
-    return super.canActivate(context);
+    const req = context.switchToHttp().getRequest();
+    const bearerToken = req?.headers ? extractBearerTokenFromHeader(req) : undefined;
+
+    if (bearerToken && !this.isJwtToken(bearerToken)) {
+      const authResult = await this.validateOpaqueApiKey(bearerToken);
+      if (authResult) {
+        req.user = {
+          user: authResult.user,
+          workspace: authResult.workspace,
+          authType: JwtType.API_KEY,
+        };
+        if (req.raw) {
+          req.raw.workspaceId = authResult.workspace.id;
+          req.raw.workspace = authResult.workspace;
+        }
+        this.handleRequest(null, req.user, null, context);
+        return true;
+      }
+    }
+
+    return super.canActivate(context) as Promise<boolean>;
+  }
+
+  private isJwtToken(token: string): boolean {
+    return token.split('.').length === 3;
+  }
+
+  private async validateOpaqueApiKey(token: string) {
+    if (!this.moduleRef) {
+      return null;
+    }
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const { ApiKeyService } = require('../../ee/api-key/api-key.service');
+      const apiKeyService = this.moduleRef.get(ApiKeyService, { strict: false });
+      return await apiKeyService.validateOpaqueToken(token);
+    } catch (err: any) {
+      this.logger.debug(`Opaque API key validation failed: ${err?.message}`);
+      return null;
+    }
   }
 
   handleRequest(err: any, user: any, info: any, ctx: ExecutionContext) {

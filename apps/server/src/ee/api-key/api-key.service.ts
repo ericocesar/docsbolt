@@ -1,8 +1,11 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectKysely } from 'nestjs-kysely';
 import { createHash, randomBytes } from 'crypto';
 import { KyselyDB } from '../../database/types/kysely.types';
 import { CreateApiKeyDto, UpdateApiKeyDto } from './dto';
+import { JwtApiKeyPayload } from '../../core/auth/dto/jwt-payload';
+import { User, Workspace } from '@docmost/db/types/entity.types';
+import { isUserDisabled } from '../../common/helpers';
 
 const PAGE_LIMIT = 50;
 
@@ -123,4 +126,108 @@ export class ApiKeyService {
       .executeTakeFirst();
     if (!updated) throw new NotFoundException('API key not found');
   }
+
+  async validateOpaqueToken(token: string): Promise<{ user: User; workspace: Workspace }> {
+    const tokenHash = createHash('sha256').update(token).digest('hex');
+
+    const key = await this.db
+      .selectFrom('apiKeys')
+      .selectAll('apiKeys')
+      .where('tokenHash', '=', tokenHash)
+      .where('deletedAt', 'is', null)
+      .executeTakeFirst();
+
+    if (!key) {
+      throw new UnauthorizedException('Invalid API key');
+    }
+
+    if (key.expiresAt && new Date(key.expiresAt) < new Date()) {
+      throw new UnauthorizedException('API key has expired');
+    }
+
+    await this.db
+      .updateTable('apiKeys')
+      .set({ lastUsedAt: new Date() })
+      .where('id', '=', key.id)
+      .execute();
+
+    const workspace = await this.db
+      .selectFrom('workspaces')
+      .selectAll('workspaces')
+      .where('id', '=', key.workspaceId)
+      .executeTakeFirst();
+
+    if (!workspace) {
+      throw new UnauthorizedException('Workspace not found');
+    }
+
+    const user = await this.db
+      .selectFrom('users')
+      .selectAll('users')
+      .where('id', '=', key.creatorId)
+      .where('workspaceId', '=', key.workspaceId)
+      .where('deletedAt', 'is', null)
+      .executeTakeFirst();
+
+    if (!user || isUserDisabled(user)) {
+      throw new UnauthorizedException('User not found or disabled');
+    }
+
+    return {
+      user: user as unknown as User,
+      workspace: workspace as unknown as Workspace,
+    };
+  }
+
+  async validateApiKey(payload: JwtApiKeyPayload): Promise<{ user: User; workspace: Workspace }> {
+    const key = await this.db
+      .selectFrom('apiKeys')
+      .selectAll('apiKeys')
+      .where('id', '=', payload.apiKeyId)
+      .where('workspaceId', '=', payload.workspaceId)
+      .where('deletedAt', 'is', null)
+      .executeTakeFirst();
+
+    if (!key) {
+      throw new UnauthorizedException('Invalid API key');
+    }
+
+    if (key.expiresAt && new Date(key.expiresAt) < new Date()) {
+      throw new UnauthorizedException('API key has expired');
+    }
+
+    await this.db
+      .updateTable('apiKeys')
+      .set({ lastUsedAt: new Date() })
+      .where('id', '=', key.id)
+      .execute();
+
+    const workspace = await this.db
+      .selectFrom('workspaces')
+      .selectAll('workspaces')
+      .where('id', '=', payload.workspaceId)
+      .executeTakeFirst();
+
+    if (!workspace) {
+      throw new UnauthorizedException('Workspace not found');
+    }
+
+    const user = await this.db
+      .selectFrom('users')
+      .selectAll('users')
+      .where('id', '=', key.creatorId)
+      .where('workspaceId', '=', payload.workspaceId)
+      .where('deletedAt', 'is', null)
+      .executeTakeFirst();
+
+    if (!user || isUserDisabled(user)) {
+      throw new UnauthorizedException('User not found or disabled');
+    }
+
+    return {
+      user: user as unknown as User,
+      workspace: workspace as unknown as Workspace,
+    };
+  }
 }
+
