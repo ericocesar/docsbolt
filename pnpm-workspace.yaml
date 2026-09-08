@@ -16,6 +16,7 @@ overrides:
   express-rate-limit: 8.2.2
   flatted: 3.4.2
   find-my-way: 9.7.0
+  fastify: 5.12.3
   yaml@>=2.0.0 <2.8.3: 2.8.3
   brace-expansion@^5: 5.0.9
   axios: 1.18.1
@@ -30,6 +31,10 @@ overrides:
   js-yaml@>=4.0.0 <4.3.1: 4.3.1
 shamefullyHoist: true
 minimumReleaseAge: 4320
+minimumReleaseAgeExclude:
+  - '@tiptap/*'
+  - fastify
+  - postcss-selector-parser
 allowBuilds:
   '@swc/core': true
   bcrypt: true
