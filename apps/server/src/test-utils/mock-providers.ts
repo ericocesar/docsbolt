@@ -30,6 +30,7 @@ import { GroupUserService } from '../core/group/services/group-user.service';
 import { SearchService } from '../core/search/search.service';
 import { SpaceService } from '../core/space/services/space.service';
 import { SpaceMemberService } from '../core/space/services/space-member.service';
+import { PublicSpaceService } from '../core/public-space/public-space.service';
 import { EnvironmentService } from '../integrations/environment/environment.service';
 import { StorageService } from '../integrations/storage/storage.service';
 import { LicenseCheckService } from '../integrations/environment/license-check.service';
@@ -59,6 +60,7 @@ import { FavoriteRepo } from '../database/repos/favorite/favorite.repo';
 import { NotificationRepo } from '../database/repos/notification/notification.repo';
 import { LabelRepo } from '../database/repos/label/label.repo';
 import { TemplateRepo } from '../database/repos/template/template.repo';
+import { PublicSpaceRepo } from '../database/repos/public-space/public-space.repo';
 
 import SpaceAbilityFactory from '../core/casl/abilities/space-ability.factory';
 import WorkspaceAbilityFactory from '../core/casl/abilities/workspace-ability.factory';
@@ -94,6 +96,7 @@ export const mockProviders: Provider[] = [
   { provide: NotificationRepo, useValue: stub() },
   { provide: LabelRepo, useValue: stub() },
   { provide: TemplateRepo, useValue: stub() },
+  { provide: PublicSpaceRepo, useValue: stub() },
 
   // Casl ability factories
   { provide: SpaceAbilityFactory, useValue: stub() },
@@ -121,6 +124,7 @@ export const mockProviders: Provider[] = [
   { provide: SearchService, useValue: stub() },
   { provide: SpaceService, useValue: stub() },
   { provide: SpaceMemberService, useValue: stub() },
+  { provide: PublicSpaceService, useValue: stub() },
   { provide: EnvironmentService, useValue: stub() },
   { provide: StorageService, useValue: stub() },
   { provide: LicenseCheckService, useValue: stub() },
