@@ -52,7 +52,7 @@ try {
       middleware: { mount: true },
     }),
     LoggerModule,
-    ...(enterpriseModules.length > 0 ? [] : [NoopAuditModule]),
+    NoopAuditModule,
     CoreModule,
     DatabaseModule,
     EnvironmentModule,
