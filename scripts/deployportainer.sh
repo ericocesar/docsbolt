@@ -35,8 +35,8 @@ Formato do arquivo .env:
   PORTAINER_ENDPOINT_ID=1
 
 Formato esperado no compose:
-  image: ghcr.io/ericocesar/boltplan:${IMAGE_TAG}
-  image: ghcr.io/ericocesar/plankabolt:${IMAGE_TAG}
+  image: ghcr.io/ericocesar/boltplan:\${IMAGE_TAG}
+  image: ghcr.io/ericocesar/plankabolt:\${IMAGE_TAG}
 
 Dependências:
   curl
