@@ -462,6 +462,7 @@ echo ">>> Verificando alterações no repositório..."
 
 HISTORY_DIR="$(resolve_history_dir)"
 TAG_FILE="${HISTORY_DIR}/latest-tag"
+mkdir -p "${HISTORY_DIR}"
 
 has_relevant_changes() {
   local porcelain
