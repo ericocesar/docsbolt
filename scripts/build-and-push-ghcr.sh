@@ -501,6 +501,14 @@ if ! docker system info > /dev/null 2>&1; then
   exit 1
 fi
 
+DOCKER_MEM_BYTES="$(docker system info --format '{{.MemTotal}}' 2>/dev/null || echo 0)"
+DOCKER_MEM_GB="$(awk -v b="${DOCKER_MEM_BYTES}" 'BEGIN { printf "%.1f", b/1024/1024/1024 }')"
+DOCKER_MEM_OK="$(awk -v b="${DOCKER_MEM_BYTES}" 'BEGIN { print (b >= 6 * 1024 * 1024 * 1024) ? 1 : 0 }')"
+if [[ "${DOCKER_MEM_OK}" -ne 1 ]]; then
+  echo "    ⚠️  Docker reporta ${DOCKER_MEM_GB} GiB de RAM. Build com Vite + Nest costuma precisar de 6 GiB+."
+  echo "       Aumente em Docker Desktop → Settings → Resources → Memory (recomendado: 8 GiB)."
+fi
+
 if ! docker login "${REGISTRY}" > /dev/null 2>&1; then
   echo "Você não está logado no ${REGISTRY}."
   exit 1

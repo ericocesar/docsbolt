@@ -9,6 +9,8 @@ WORKDIR /app
 
 COPY . .
 
+ENV NODE_OPTIONS="--max-old-space-size=3072"
+
 RUN pnpm install --frozen-lockfile
 RUN pnpm build
 
