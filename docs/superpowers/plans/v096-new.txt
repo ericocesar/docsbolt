@@ -50,7 +50,7 @@ apps/server/src/core/public-space/public-space.controller.ts
 apps/server/src/core/public-space/public-space.module.ts
 apps/server/src/core/public-space/public-space.service.spec.ts
 apps/server/src/core/public-space/public-space.service.ts
-apps/server/src/database/migrations/20260902T121326-siem-destinations.ts
+apps/server/src/database/migrations/20260903T120000-siem-destinations.ts
 apps/server/src/database/migrations/20260904T171920-public-spaces.ts
 apps/server/src/database/repos/public-space/public-space.repo.ts
 apps/server/src/integrations/outbound/outbound-agent.factory.spec.ts
