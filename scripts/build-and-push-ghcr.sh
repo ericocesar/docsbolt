@@ -590,5 +590,5 @@ generate_commit_doc_template_style "${BUILD_COMMIT_REF}" "${TAG_SHA}" "${IMAGE}"
 
 echo ""
 echo "Para fazer deploy:"
-echo "  pnpm deploy:stack:dev   # ou: pnpm deploy:stack dev"
-echo "  pnpm deploy:stack:prod  # ou: pnpm deploy:stack prod"
+echo "  pnpm deploy:dev"
+echo "  pnpm deploy:prod"
