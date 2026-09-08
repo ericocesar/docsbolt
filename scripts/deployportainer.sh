@@ -9,13 +9,15 @@ REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 usage() {
   cat <<EOF
 Uso:
-  ./scripts/deployportainer.sh <AMBIENTE>
+  ./scripts/deployportainer.sh <AMBIENTE> [TAG]
 
 Exemplos:
   ./scripts/deployportainer.sh dev
   ./scripts/deployportainer.sh prod
+  ./scripts/deployportainer.sh dev sha-6578fee
+  ./scripts/deployportainer.sh prod main
 
-A tag da imagem é lida automaticamente de:
+Se TAG for omitida, a tag é lida de:
   $REPO_ROOT/docs/historico/latest-tag
 
 Arquivos obrigatórios:
@@ -366,17 +368,26 @@ main() {
   require_cmd jq
   require_cmd python3
 
-  if [ $# -ne 1 ]; then
+  if [ $# -lt 1 ] || [ $# -gt 2 ]; then
     usage
     exit 1
   fi
 
   ENVIRONMENT="$1"
+  IMAGE_TAG_ARG="${2:-}"
 
   [ -n "$ENVIRONMENT" ] || fail "parâmetro AMBIENTE é obrigatório"
 
   select_environment "$ENVIRONMENT"
-  load_latest_image_tag
+
+  if [ -n "$IMAGE_TAG_ARG" ]; then
+    IMAGE_TAG="$IMAGE_TAG_ARG"
+    validate_image_tag "$IMAGE_TAG"
+    log "IMAGE_TAG via argumento: ${IMAGE_TAG}"
+  else
+    load_latest_image_tag
+  fi
+
   validate_required_files
   load_env_file
 
