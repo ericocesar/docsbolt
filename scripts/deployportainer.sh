@@ -191,12 +191,16 @@ from pathlib import Path
 
 content = Path(os.environ["STACK_FILE_TO_PARSE"]).read_text(encoding="utf-8")
 
-match = re.search(r'^\s*image:\s*([^\s#]+)', content, re.MULTILINE)
-if not match:
+matches = re.findall(r'^\s*image:\s*([^\s#]+)', content, re.MULTILINE)
+if not matches:
     print("", end="")
     raise SystemExit(0)
 
-image_ref = match.group(1).strip()
+# Prefere a imagem que tem placeholder ${IMAGE_TAG} (o servico deployavel).
+# Caso contrario, cai na primeira imagem (comportamento legado).
+target = next((m for m in matches if "${IMAGE_TAG}" in m), matches[0])
+
+image_ref = target.strip()
 image_ref = image_ref.split("@", 1)[0]
 image_ref = re.sub(r"\$\{[^}]+\}", "", image_ref)
 last_slash = image_ref.rfind("/")
