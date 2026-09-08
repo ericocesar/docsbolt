@@ -29,6 +29,10 @@ dotenv.config({
   path: path.resolve(__dirname, '../../../../../.env'),
 });
 
+const HAS_DB = Boolean(process.env.DATABASE_URL);
+const itDb = HAS_DB ? it : it.skip;
+const describeDb = HAS_DB ? describe : describe.skip;
+
 interface Pages {
   id: Generated<string>;
   slugId: string;
@@ -100,7 +104,7 @@ interface DB {
   baseViews: BaseViews;
 }
 
-describe('BaseService jsonb patch-merge semantics', () => {
+describeDb('BaseService jsonb patch-merge semantics', () => {
   let db: Kysely<DB>;
   let service: BaseService;
   let workspaceId: string;
