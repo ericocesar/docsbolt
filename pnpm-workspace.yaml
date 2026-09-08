@@ -36,6 +36,7 @@ minimumReleaseAgeExclude:
   - fastify
   - postcss-selector-parser
 allowBuilds:
+  '@parcel/watcher': true
   '@swc/core': true
   bcrypt: true
   core-js: true
