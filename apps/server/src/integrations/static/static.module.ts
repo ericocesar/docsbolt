@@ -58,20 +58,33 @@ export class StaticModule implements OnModuleInit {
 
       const windowScriptContent = `<script>window.CONFIG=${JSON.stringify(configString)};</script>`;
 
-      if (!fs.existsSync(indexTemplateFilePath)) {
-        fs.copyFileSync(indexFilePath, indexTemplateFilePath);
-      }
+      const syncIndexHtml = () => {
+        try {
+          let template = fs.readFileSync(indexFilePath, 'utf8');
+          if (template.includes(windowVar)) {
+            fs.writeFileSync(indexTemplateFilePath, template);
+          } else if (fs.existsSync(indexTemplateFilePath)) {
+            template = fs.readFileSync(indexTemplateFilePath, 'utf8');
+          }
 
-      const html = fs.readFileSync(indexTemplateFilePath, 'utf8');
-      const transformedHtml = html.replace(windowVar, windowScriptContent);
+          const transformedHtml = template.replace(
+            windowVar,
+            windowScriptContent,
+          );
+          fs.writeFileSync(indexFilePath, transformedHtml);
+        } catch {
+          // ignore error if file cannot be read/written
+        }
+      };
 
-      fs.writeFileSync(indexFilePath, transformedHtml);
+      syncIndexHtml();
 
       const RENDER_PATH = '*';
 
       await app.register(fastifyStatic, {
         root: clientDistPath,
         wildcard: false,
+        index: false,
         setHeaders: (reply: any, pathName: string) => {
           // Vite content-hashes everything under /assets, so they can be cached forever
           if (/[\\/]assets[\\/]/.test(pathName)) {
@@ -84,6 +97,34 @@ export class StaticModule implements OnModuleInit {
       });
 
       app.get(RENDER_PATH, (req: any, res: any) => {
+        const rawUrl = (req.raw?.url || req.url || '').split('?')[0];
+        const cleanPath = decodeURIComponent(rawUrl.replace(/^\/+/, ''));
+        const candidatePath = join(clientDistPath, cleanPath);
+
+        // If a static file exists on disk (e.g. newly built chunk created while server was running),
+        // serve it directly with proper MIME type
+        if (
+          cleanPath &&
+          candidatePath.startsWith(clientDistPath) &&
+          fs.existsSync(candidatePath) &&
+          fs.statSync(candidatePath).isFile()
+        ) {
+          return res.sendFile(cleanPath);
+        }
+
+        // If an asset/script/style was requested and does not exist, return 404 instead of index.html.
+        // This prevents the browser from receiving HTML for module scripts (fixing the MIME type error).
+        if (
+          cleanPath.startsWith('assets/') ||
+          /\.(js|mjs|cjs|css|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot|json|map)$/i.test(
+            cleanPath,
+          )
+        ) {
+          return res.status(404).send('Not Found');
+        }
+
+        syncIndexHtml();
+
         const stream = fs.createReadStream(indexFilePath);
         res
           .header('Cache-Control', 'no-cache, no-store, must-revalidate')

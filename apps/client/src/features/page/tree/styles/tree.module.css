@@ -1,6 +1,6 @@
 .tree {
     border-radius: 0;
-    font-family: var(--font-roboto-condensed, 'Roboto Condensed Variable', 'Roboto Condensed', sans-serif);
+    font-family: var(--font-inter-tight, 'Inter Tight Variable', 'Inter Tight', sans-serif);
 }
 
 .treeContainer {
@@ -11,7 +11,7 @@
        its parent and the page scrolls instead. */
     overflow-y: auto;
     overflow-x: hidden;
-    font-family: var(--font-roboto-condensed, 'Roboto Condensed Variable', 'Roboto Condensed', sans-serif);
+    font-family: var(--font-inter-tight, 'Inter Tight Variable', 'Inter Tight', sans-serif);
 }
 
 .node {
@@ -22,8 +22,9 @@
     height: 100%;
     width: 100%;
     text-decoration: none;
-    font-family: var(--font-roboto-condensed, 'Roboto Condensed Variable', 'Roboto Condensed', sans-serif);
+    font-family: var(--font-inter-tight, 'Inter Tight Variable', 'Inter Tight', sans-serif);
     color: light-dark(var(--mantine-color-gray-7), var(--mantine-color-dark-0));
+    padding-right: rem(4px);
 
     /* Gate hover styles to mouse-capable devices. Touch browsers synthesize
        :hover on the first tap (sticky hover) and only fire click on the
@@ -34,29 +35,25 @@
         }
 
         &:hover .actions {
-            opacity: 1;
-            pointer-events: auto;
+            display: inline-flex;
         }
     }
 
     .actions {
-        display: inline-flex;
+        display: none;
         flex-shrink: 0;
         align-items: center;
         margin-left: 4px;
-        opacity: 0;
-        pointer-events: none;
     }
 
     &:focus-within .actions {
-        opacity: 1;
-        pointer-events: auto;
+        display: inline-flex;
     }
 }
 
 
 .icon {
-    margin: 0 rem(10px);
+    margin: 0 rem(5px);
     flex-shrink: 0;
 }
 
@@ -73,9 +70,11 @@
     text-overflow: ellipsis;
     white-space: nowrap;
     font-size: rem(14px);
+    line-height: 1;
     font-weight: 500;
-    font-family: var(--font-roboto-condensed, 'Roboto Condensed Variable', 'Roboto Condensed', sans-serif);
+    font-family: var(--font-inter-tight, 'Inter Tight Variable', 'Inter Tight', sans-serif);
     letter-spacing: 0.01em;
+    transform: translateY(-1px);
 }
 
 .arrow {
@@ -83,8 +82,8 @@
 }
 
 [role="treeitem"] {
-    padding-bottom: 2px;
-    font-family: var(--font-roboto-condensed, 'Roboto Condensed Variable', 'Roboto Condensed', sans-serif);
+    padding-bottom: 1px;
+    font-family: var(--font-inter-tight, 'Inter Tight Variable', 'Inter Tight', sans-serif);
 }
 
 /* Strip the browser's default <ul> bullet + indent from the DocTree
@@ -127,10 +126,7 @@
     );
 }
 
-.node[data-selected="true"] .actions {
-    opacity: 1;
-    pointer-events: auto;
-}
+
 
 .node[data-receiving-drop="make-child"] {
     background-color: light-dark(

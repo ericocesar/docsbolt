@@ -2,6 +2,7 @@ import "@mantine/core/styles.css";
 import "@mantine/spotlight/styles.css";
 import "@mantine/notifications/styles.css";
 import "@mantine/dates/styles.css";
+import "@fontsource-variable/inter-tight";
 import "@fontsource-variable/roboto-condensed";
 import "@/styles/a11y-overrides.css";
 

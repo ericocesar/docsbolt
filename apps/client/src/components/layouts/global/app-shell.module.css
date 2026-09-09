@@ -3,8 +3,8 @@
 }
 
 .navbar {
-  --mantine-font-family: var(--font-roboto-condensed, 'Roboto Condensed Variable', 'Roboto Condensed', sans-serif);
-  font-family: var(--font-roboto-condensed, 'Roboto Condensed Variable', 'Roboto Condensed', sans-serif);
+  --mantine-font-family: var(--font-inter-tight, 'Inter Tight Variable', 'Inter Tight', sans-serif);
+  font-family: var(--font-inter-tight, 'Inter Tight Variable', 'Inter Tight', sans-serif);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }

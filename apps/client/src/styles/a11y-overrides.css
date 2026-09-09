@@ -6,14 +6,20 @@
 
 :root {
   --font-roboto-condensed: 'Roboto Condensed Variable', 'Roboto Condensed', sans-serif;
+  --font-inter-tight: 'Inter Tight Variable', 'Inter Tight', sans-serif;
 }
 
 /* Menus and dropdowns typography */
 .mantine-Menu-dropdown,
 .mantine-Menu-item,
 .mantine-Menu-label {
-  font-family: var(--font-roboto-condensed, 'Roboto Condensed Variable', 'Roboto Condensed', sans-serif);
+  font-family: var(--font-inter-tight, 'Inter Tight Variable', 'Inter Tight', sans-serif);
   letter-spacing: 0.01em;
+}
+
+/* Halve horizontal distance between menu item icon and label text */
+.mantine-Menu-itemSection[data-position="left"] {
+  margin-inline-end: calc(var(--mantine-spacing-xs) / 2);
 }
 
 /* Mantine's default disabled menu item uses opacity: 0.5 on the active text

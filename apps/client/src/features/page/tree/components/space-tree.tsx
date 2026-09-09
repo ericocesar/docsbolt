@@ -218,6 +218,7 @@ export default function SpaceTree({ spaceId, readOnly }: SpaceTreeProps) {
           openIds={openIds}
           selectedId={currentPage?.id}
           renderRow={renderRow}
+          rowHeight={26}
           onMove={handleMove}
           onToggle={handleToggle}
           readOnly={readOnly}

@@ -4,7 +4,7 @@
     padding: var(--mantine-spacing-md);
     display: flex;
     flex-direction: column;
-    font-family: var(--font-roboto-condensed, 'Roboto Condensed Variable', 'Roboto Condensed', sans-serif);
+    font-family: var(--font-inter-tight, 'Inter Tight Variable', 'Inter Tight', sans-serif);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
@@ -12,7 +12,7 @@
 .title {
     padding-bottom: var(--mantine-spacing-sm);
     border-bottom: rem(1px) solid light-dark(var(--mantine-color-gray-3), var(--mantine-color-dark-4));
-    font-family: var(--font-roboto-condensed, 'Roboto Condensed Variable', 'Roboto Condensed', sans-serif);
+    font-family: var(--font-inter-tight, 'Inter Tight Variable', 'Inter Tight', sans-serif);
 }
 
 .link {
@@ -27,7 +27,7 @@
     border-radius: var(--mantine-radius-sm);
     font-weight: 500;
     user-select: none;
-    font-family: var(--font-roboto-condensed, 'Roboto Condensed Variable', 'Roboto Condensed', sans-serif);
+    font-family: var(--font-inter-tight, 'Inter Tight Variable', 'Inter Tight', sans-serif);
     letter-spacing: 0.01em;
 
     @mixin hover {
@@ -49,7 +49,7 @@
 
 .linkIcon {
     color: light-dark(var(--mantine-color-gray-6), var(--mantine-color-dark-2));
-    margin-right: var(--mantine-spacing-sm);
+    margin-right: calc(var(--mantine-spacing-sm) / 2);
     width: rem(16px);
     height: rem(16px);
 }
@@ -62,7 +62,7 @@
     cursor: pointer;
     display: flex;
     align-items: center;
-    font-family: var(--font-roboto-condensed, 'Roboto Condensed Variable', 'Roboto Condensed', sans-serif);
+    font-family: var(--font-inter-tight, 'Inter Tight Variable', 'Inter Tight', sans-serif);
     letter-spacing: 0.02em;
 }
 

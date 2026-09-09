@@ -2,7 +2,7 @@ import { useRef } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useAtom } from "jotai";
 import { useTranslation } from "react-i18next";
-import { ActionIcon, rem } from "@mantine/core";
+import { ActionIcon, rem, Tooltip } from "@mantine/core";
 import {
   IconChevronDown,
   IconChevronRight,
@@ -58,6 +58,7 @@ export function SpaceTreeRow({
   const toggleMobileSidebar = useToggleSidebar(mobileSidebarAtom);
 
   const canEdit = !readOnly && node.canEdit !== false;
+  const pageTitle = getPageTitle(node.name, node.isBase, t);
   const pageUrl = buildPageUrl(spaceSlug, node.slugId, node.name);
 
   const prefetchPage = () => {
@@ -159,7 +160,14 @@ export function SpaceTreeRow({
         onToggle={toggleOpen}
       />
 
-      <div onClick={handleEmojiIconClick} style={{ marginRight: "4px" }}>
+      <div
+        onClick={handleEmojiIconClick}
+        style={{
+          marginRight: "0.6px",
+          display: "inline-flex",
+          alignItems: "center",
+        }}
+      >
         <EmojiPicker
           onEmojiSelect={handleEmojiSelect}
           icon={
@@ -173,11 +181,20 @@ export function SpaceTreeRow({
           }
           readOnly={!canEdit}
           removeEmojiAction={handleRemoveEmoji}
-          actionIconProps={{ tabIndex: -1 }}
+          actionIconProps={{ size: "20px", tabIndex: -1 }}
         />
       </div>
 
-      <span className={classes.text}>{getPageTitle(node.name, node.isBase, t)}</span>
+      <Tooltip
+        label={pageTitle}
+        position="right"
+        withArrow
+        openDelay={300}
+        multiline
+        maw={320}
+      >
+        <span className={classes.text}>{pageTitle}</span>
+      </Tooltip>
 
       <div className={classes.actions}>
         <NodeMenu node={node} canEdit={canEdit} />

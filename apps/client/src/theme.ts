@@ -69,16 +69,16 @@ export const theme = createTheme({
       styles: {
         dropdown: {
           fontFamily:
-            "var(--font-roboto-condensed, 'Roboto Condensed Variable', 'Roboto Condensed', sans-serif)",
+            "var(--font-inter-tight, 'Inter Tight Variable', 'Inter Tight', sans-serif)",
         },
         item: {
           fontFamily:
-            "var(--font-roboto-condensed, 'Roboto Condensed Variable', 'Roboto Condensed', sans-serif)",
+            "var(--font-inter-tight, 'Inter Tight Variable', 'Inter Tight', sans-serif)",
           letterSpacing: "0.01em",
         },
         label: {
           fontFamily:
-            "var(--font-roboto-condensed, 'Roboto Condensed Variable', 'Roboto Condensed', sans-serif)",
+            "var(--font-inter-tight, 'Inter Tight Variable', 'Inter Tight', sans-serif)",
           letterSpacing: "0.02em",
         },
       },
@@ -109,6 +109,8 @@ export const mantineCssResolver: CSSVariablesResolver = (theme) => ({
     "--input-error-size": theme.fontSizes.sm,
     "--font-roboto-condensed":
       "'Roboto Condensed Variable', 'Roboto Condensed', sans-serif",
+    "--font-inter-tight":
+      "'Inter Tight Variable', 'Inter Tight', sans-serif",
   },
   light: {
     ...v8CssVariablesResolver(theme).light,

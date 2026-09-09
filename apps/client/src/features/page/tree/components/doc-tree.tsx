@@ -134,7 +134,7 @@ function DocTreeInner<T extends object>(
     selectedId,
     renderRow,
     indentPerLevel = 16,
-    rowHeight = 32,
+    rowHeight = 26,
     rowClassName,
     rowGap,
     dynamicRowHeight = false,

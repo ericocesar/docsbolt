@@ -1,7 +1,7 @@
 .spaceName {
   width: 100%;
-  padding: var(--mantine-spacing-sm);
+  padding: rem(4px) calc(var(--mantine-spacing-sm) / 2);
   color: light-dark(var(--mantine-color-dark-4), var(--mantine-color-dark-0));
-  font-family: var(--font-roboto-condensed, 'Roboto Condensed Variable', 'Roboto Condensed', sans-serif);
+  font-family: var(--font-inter-tight, 'Inter Tight Variable', 'Inter Tight', sans-serif);
   letter-spacing: 0.01em;
 }
