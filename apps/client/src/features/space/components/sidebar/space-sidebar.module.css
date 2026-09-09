@@ -7,6 +7,9 @@
     display: flex;
     flex-direction: column;
     user-select: none;
+    font-family: var(--font-roboto-condensed, 'Roboto Condensed Variable', 'Roboto Condensed', sans-serif);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 .section {
@@ -43,6 +46,8 @@
     padding: rem(4px) var(--mantine-spacing-xs);
     border-radius: var(--mantine-radius-sm);
     font-weight: 500;
+    font-family: var(--font-roboto-condensed, 'Roboto Condensed Variable', 'Roboto Condensed', sans-serif);
+    letter-spacing: 0.01em;
     color: light-dark(var(--mantine-color-gray-7), var(--mantine-color-dark-0));
 
     &:hover {
@@ -72,6 +77,8 @@
     padding-left: calc(var(--mantine-spacing-md) + rem(2px));
     padding-right: var(--mantine-spacing-md);
     margin-bottom: rem(5px);
+    font-family: var(--font-roboto-condensed, 'Roboto Condensed Variable', 'Roboto Condensed', sans-serif);
+    letter-spacing: 0.02em;
 }
 
 .pageLink {
@@ -83,6 +90,8 @@
     color: light-dark(var(--mantine-color-gray-7), var(--mantine-color-dark-0));
     line-height: 1;
     font-weight: 500;
+    font-family: var(--font-roboto-condensed, 'Roboto Condensed Variable', 'Roboto Condensed', sans-serif);
+    letter-spacing: 0.01em;
 
     &:hover {
         background-color: light-dark(var(--mantine-color-gray-0), var(--mantine-color-dark-6));

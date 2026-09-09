@@ -2,6 +2,13 @@
   background-color: light-dark(#f6f7f9, var(--mantine-color-dark-8));
 }
 
+.navbar {
+  --mantine-font-family: var(--font-roboto-condensed, 'Roboto Condensed Variable', 'Roboto Condensed', sans-serif);
+  font-family: var(--font-roboto-condensed, 'Roboto Condensed Variable', 'Roboto Condensed', sans-serif);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
 .navbar, .aside {
   @media (max-width: $mantine-breakpoint-sm) {
     width: 350px;

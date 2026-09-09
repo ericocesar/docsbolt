@@ -4,6 +4,9 @@
     padding: var(--mantine-spacing-md);
     display: flex;
     flex-direction: column;
+    font-family: var(--font-roboto-condensed, 'Roboto Condensed Variable', 'Roboto Condensed', sans-serif);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 .section {
@@ -22,6 +25,8 @@
     border-radius: var(--mantine-radius-sm);
     font-weight: 500;
     user-select: none;
+    font-family: var(--font-roboto-condensed, 'Roboto Condensed Variable', 'Roboto Condensed', sans-serif);
+    letter-spacing: 0.01em;
 
     @mixin hover {
         background-color: light-dark(
@@ -69,6 +74,7 @@
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.5px;
+    font-family: var(--font-roboto-condensed, 'Roboto Condensed Variable', 'Roboto Condensed', sans-serif);
 }
 
 .spacer {
@@ -93,6 +99,8 @@
     border-radius: var(--mantine-radius-sm);
     font-weight: 500;
     user-select: none;
+    font-family: var(--font-roboto-condensed, 'Roboto Condensed Variable', 'Roboto Condensed', sans-serif);
+    letter-spacing: 0.01em;
 
     @mixin hover {
         background-color: light-dark(

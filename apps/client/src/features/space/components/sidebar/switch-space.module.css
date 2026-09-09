@@ -2,4 +2,6 @@
   width: 100%;
   padding: var(--mantine-spacing-sm);
   color: light-dark(var(--mantine-color-dark-4), var(--mantine-color-dark-0));
+  font-family: var(--font-roboto-condensed, 'Roboto Condensed Variable', 'Roboto Condensed', sans-serif);
+  letter-spacing: 0.01em;
 }

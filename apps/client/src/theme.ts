@@ -3,6 +3,7 @@ import {
   createTheme,
   CSSVariablesResolver,
   MantineColorsTuple,
+  Menu,
   Tabs,
   Tooltip,
   v8CssVariablesResolver,
@@ -64,6 +65,24 @@ export const theme = createTheme({
         },
       }),
     }),
+    Menu: Menu.extend({
+      styles: {
+        dropdown: {
+          fontFamily:
+            "var(--font-roboto-condensed, 'Roboto Condensed Variable', 'Roboto Condensed', sans-serif)",
+        },
+        item: {
+          fontFamily:
+            "var(--font-roboto-condensed, 'Roboto Condensed Variable', 'Roboto Condensed', sans-serif)",
+          letterSpacing: "0.01em",
+        },
+        label: {
+          fontFamily:
+            "var(--font-roboto-condensed, 'Roboto Condensed Variable', 'Roboto Condensed', sans-serif)",
+          letterSpacing: "0.02em",
+        },
+      },
+    }),
   },
   /***
   components: {
@@ -88,6 +107,8 @@ export const mantineCssResolver: CSSVariablesResolver = (theme) => ({
   variables: {
     ...v8CssVariablesResolver(theme).variables,
     "--input-error-size": theme.fontSizes.sm,
+    "--font-roboto-condensed":
+      "'Roboto Condensed Variable', 'Roboto Condensed', sans-serif",
   },
   light: {
     ...v8CssVariablesResolver(theme).light,

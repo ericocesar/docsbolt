@@ -4,6 +4,18 @@
  * contrast before/after.
  */
 
+:root {
+  --font-roboto-condensed: 'Roboto Condensed Variable', 'Roboto Condensed', sans-serif;
+}
+
+/* Menus and dropdowns typography */
+.mantine-Menu-dropdown,
+.mantine-Menu-item,
+.mantine-Menu-label {
+  font-family: var(--font-roboto-condensed, 'Roboto Condensed Variable', 'Roboto Condensed', sans-serif);
+  letter-spacing: 0.01em;
+}
+
 /* Mantine's default disabled menu item uses opacity: 0.5 on the active text
  * color, which collapses to ~3.94:1 on white — below WCAG AA 4.5:1.
  * (WCAG 1.4.3 exempts "inactive" UI components, but the text becomes hard
