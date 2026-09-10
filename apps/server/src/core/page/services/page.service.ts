@@ -9,6 +9,7 @@ import { CreatePageDto, ContentFormat } from '../dto/create-page.dto';
 import { ContentOperation, UpdatePageDto } from '../dto/update-page.dto';
 import { PageRepo } from '@docmost/db/repos/page/page.repo';
 import { PagePermissionRepo } from '@docmost/db/repos/page/page-permission.repo';
+import { SpaceRepo } from '@docmost/db/repos/space/space.repo';
 import { InsertablePage, Page, User } from '@docmost/db/types/entity.types';
 import { PaginationOptions } from '@docmost/db/pagination/pagination-options';
 import {
@@ -64,6 +65,7 @@ export class PageService {
   constructor(
     private pageRepo: PageRepo,
     private pagePermissionRepo: PagePermissionRepo,
+    private readonly spaceRepo: SpaceRepo,
     private attachmentRepo: AttachmentRepo,
     @InjectKysely() private readonly db: KyselyDB,
     private readonly storageService: StorageService,
@@ -113,6 +115,23 @@ export class PageService {
       }
 
       parentPageId = parentPage.id;
+    }
+
+    // Auto-insert subpages block if space setting is enabled
+    if (!createPageDto.content) {
+      const space = await this.spaceRepo.findById(
+        createPageDto.spaceId,
+        workspaceId,
+      );
+
+      if ((space?.settings as any)?.pages?.autoSubpages === true) {
+        // format 'json' expects an object, not a serialized string
+        createPageDto.content = {
+          type: 'doc',
+          content: [{ type: 'subpages' }],
+        };
+        createPageDto.format = 'json';
+      }
     }
 
     let content = undefined;
