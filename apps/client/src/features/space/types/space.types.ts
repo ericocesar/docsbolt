@@ -42,6 +42,7 @@ export interface ISpace {
   // for updates
   disablePublicSharing?: boolean;
   allowViewerComments?: boolean;
+  autoSubpages?: boolean;
 }
 
 interface IMembership {

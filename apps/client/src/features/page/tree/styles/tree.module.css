@@ -46,6 +46,16 @@
         margin-left: 4px;
     }
 
+    /* Keep the actions laid out while their menu is open. Mantine's Popover
+       runs floating-ui's hide() middleware (hideDetached defaults to true), so
+       once the Menu.Target collapses to a 0x0 rect the dropdown hides itself
+       and jumps to the viewport corner. :focus-within does not cover this: the
+       dropdown is portalled to body, so focus leaves the row entirely. Mantine
+       sets data-expanded on the target of an open menu. */
+    .actions:has([data-expanded]) {
+        display: inline-flex;
+    }
+
     &:focus-within .actions {
         display: inline-flex;
     }
