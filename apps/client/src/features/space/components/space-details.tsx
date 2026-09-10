@@ -6,6 +6,7 @@ import DeleteSpaceModal from "./delete-space-modal";
 import { useDisclosure } from "@mantine/hooks";
 import ExportModal from "@/components/common/export-modal.tsx";
 import AvatarUploader from "@/components/common/avatar-uploader.tsx";
+import AutoSubpagesToggle from "@/features/space/components/auto-subpages-toggle.tsx";
 import {
   uploadSpaceIcon,
   removeSpaceIcon,
@@ -87,6 +88,10 @@ export default function SpaceDetails({ spaceId, readOnly }: SpaceDetailsProps) {
           </div>
 
           <EditSpaceForm space={space} readOnly={readOnly} />
+
+          <Divider my="lg" />
+
+          <AutoSubpagesToggle space={space} />
 
           {!readOnly && (
             <>
