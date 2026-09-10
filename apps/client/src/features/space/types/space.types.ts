@@ -13,9 +13,14 @@ export interface ISpaceCommentsSettings {
   allowViewerComments?: boolean;
 }
 
+export interface ISpacePagesSettings {
+  autoSubpages?: boolean;
+}
+
 export interface ISpaceSettings {
   sharing?: ISpaceSharingSettings;
   comments?: ISpaceCommentsSettings;
+  pages?: ISpacePagesSettings;
 }
 
 export interface ISpace {
