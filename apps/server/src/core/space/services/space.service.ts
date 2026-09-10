@@ -218,6 +218,22 @@ export class SpaceService {
         );
       }
 
+      if (typeof updateSpaceDto.autoSubpages !== 'undefined') {
+        const prev = settingsBefore?.pages?.autoSubpages ?? false;
+        if (prev !== updateSpaceDto.autoSubpages) {
+          before.autoSubpages = prev;
+          after.autoSubpages = updateSpaceDto.autoSubpages;
+        }
+
+        await this.spaceRepo.updatePagesSettings(
+          updateSpaceDto.spaceId,
+          workspaceId,
+          'autoSubpages',
+          updateSpaceDto.autoSubpages,
+          trx,
+        );
+      }
+
       updatedSpace = await this.spaceRepo.updateSpace(
         {
           name: updateSpaceDto.name,
