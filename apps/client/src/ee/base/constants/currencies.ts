@@ -2,6 +2,7 @@ export type Currency = { code: string; name: string };
 
 // Most-used first; order drives the dropdown.
 export const CURRENCIES: Currency[] = [
+  { code: "BRL", name: "Real (BRL)" },
   { code: "USD", name: "US Dollar" },
   { code: "EUR", name: "Euro" },
   { code: "GBP", name: "Pound" },
@@ -12,11 +13,11 @@ export const CURRENCIES: Currency[] = [
   { code: "CNY", name: "Chinese Yuan" },
 ];
 
-export const DEFAULT_CURRENCY_CODE = "USD";
+export const DEFAULT_CURRENCY_CODE = "BRL";
 
 const CURRENCY_CODES = new Set(CURRENCIES.map((c) => c.code));
 
-// Renders value with locale symbol and grouping. Falls back to USD for unknown codes,
+// Renders value with locale symbol and grouping. Falls back to BRL for unknown codes,
 // plain string if Intl throws. precision overrides the currency's natural decimal places.
 export function formatCurrency(
   value: number,
@@ -26,7 +27,8 @@ export function formatCurrency(
   const currency =
     code && CURRENCY_CODES.has(code) ? code : DEFAULT_CURRENCY_CODE;
   try {
-    return new Intl.NumberFormat(undefined, {
+    const locale = currency === "BRL" ? "pt-BR" : undefined;
+    return new Intl.NumberFormat(locale, {
       style: "currency",
       currency,
       ...(precision != null

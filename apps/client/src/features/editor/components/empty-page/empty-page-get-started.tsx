@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Button } from "@mantine/core";
-import { IconTable, IconLayoutKanban } from "@tabler/icons-react";
+import { IconTable, IconLayoutKanban, IconSitemap } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import { useAtomValue } from "jotai";
 import { useConvertPageToBaseMutation } from "@/ee/base/queries/base-query";
@@ -56,6 +56,13 @@ export function EmptyPageGetStarted({
       icon: IconLayoutKanban,
       onClick: () => convertMutation.mutate({ pageId, template: "kanban" }),
       disabled: convertMutation.isPending,
+    },
+    {
+      key: "subpages",
+      label: t("Subpages"),
+      icon: IconSitemap,
+      onClick: () => editor.chain().focus().insertSubpages().run(),
+      disabled: false,
     },
   ];
 

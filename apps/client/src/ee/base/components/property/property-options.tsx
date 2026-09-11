@@ -347,7 +347,14 @@ function NumberOptions({
           { value: "progress", label: t("Progress") },
         ]}
         value={options.format ?? "plain"}
-        onChange={(val) => update({ format: val ?? "plain" })}
+        onChange={(val) =>
+          update({
+            format: val ?? "plain",
+            ...(val === "currency"
+              ? { currencyCode: options.currencyCode ?? DEFAULT_CURRENCY_CODE }
+              : {}),
+          })
+        }
       />
       {options.format === "currency" && (
         <Select
@@ -434,6 +441,21 @@ function DateOptions({
 
   return (
     <Stack gap="xs">
+      <Select
+        size="xs"
+        label={t("Date format")}
+        allowDeselect={false}
+        checkIconPosition="right"
+        comboboxProps={{ portalProps: { target: dropdownPortalTarget ?? undefined } }}
+        data={[
+          { value: "DD/MM/YYYY", label: "DD/MM/YYYY (ex: 26/07/2024)" },
+          { value: "YYYY-MM-DD", label: "YYYY-MM-DD (ex: 2024-07-26)" },
+          { value: "MM/DD/YYYY", label: "MM/DD/YYYY (ex: 07/26/2024)" },
+          { value: "MMM D, YYYY", label: "MMM D, YYYY (ex: Jul 26, 2024)" },
+        ]}
+        value={options.dateFormat ?? "DD/MM/YYYY"}
+        onChange={(val) => update({ dateFormat: val ?? "DD/MM/YYYY" })}
+      />
       <Switch
         size="xs"
         label={t("Include time")}

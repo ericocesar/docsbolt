@@ -1,0 +1,129 @@
+{
+  "version": 1,
+  "generatedAt": "2026-09-11T12:23:06.592Z",
+  "source": "manual",
+  "stack": {
+    "primaryLanguage": "typescript",
+    "languages": [
+      "javascript",
+      "typescript"
+    ],
+    "frameworks": [
+      "nestjs",
+      "fastify",
+      "react",
+      "vite"
+    ],
+    "buildTools": [
+      "docker",
+      "docker-compose",
+      "nx",
+      "pnpm-workspace"
+    ],
+    "testFrameworks": [
+      "jest",
+      "vitest"
+    ],
+    "packageManager": "pnpm"
+  },
+  "sensors": [
+    {
+      "id": "server-tests",
+      "name": "Server unit tests",
+      "description": "Jest specs under apps/server/src (*.spec.ts). DB-gated specs skip silently without DATABASE_URL.",
+      "severity": "critical",
+      "blocking": true,
+      "enabled": true,
+      "command": "pnpm --filter server test",
+      "script": "test"
+    },
+    {
+      "id": "client-tests",
+      "name": "Client unit tests",
+      "description": "Vitest tests under apps/client/src (*.test.ts/tsx), jsdom environment.",
+      "severity": "critical",
+      "blocking": true,
+      "enabled": true,
+      "command": "pnpm --filter client test",
+      "script": "test"
+    },
+    {
+      "id": "build",
+      "name": "Monorepo build",
+      "description": "nx run-many -t build across apps and packages. The client target runs tsc, so this is also the type-check gate.",
+      "severity": "critical",
+      "blocking": true,
+      "enabled": true,
+      "command": "pnpm build",
+      "script": "build"
+    },
+    {
+      "id": "server-lint",
+      "name": "Server lint",
+      "description": "ESLint 9 flat config with --fix over apps/server. Note: no-explicit-any, no-unused-vars and ban-ts-comment are disabled, so this does not catch any-creep or dead code.",
+      "severity": "warning",
+      "blocking": false,
+      "enabled": true,
+      "command": "pnpm --filter server lint",
+      "script": "lint"
+    },
+    {
+      "id": "client-lint",
+      "name": "Client lint",
+      "description": "ESLint 9 flat config over apps/client.",
+      "severity": "warning",
+      "blocking": false,
+      "enabled": true,
+      "command": "pnpm --filter client lint",
+      "script": "lint"
+    },
+    {
+      "id": "server-e2e",
+      "name": "Server e2e smoke test",
+      "description": "Nest bootstrap smoke test (apps/server/test/app.e2e-spec.ts) via supertest. Needs reachable Postgres and Redis; disabled by default because it is environment-dependent.",
+      "severity": "warning",
+      "blocking": false,
+      "enabled": false,
+      "command": "pnpm --filter server test:e2e",
+      "script": "test:e2e"
+    },
+    {
+      "id": "migration-codegen-drift",
+      "name": "Kysely type drift check",
+      "description": "Regenerates apps/server/src/database/types/db.d.ts from the live schema and fails if it differs from the committed file. Requires DATABASE_URL from the repo-root .env and a database migrated to latest. Enable when working on migrations.",
+      "severity": "warning",
+      "blocking": false,
+      "enabled": false,
+      "command": "pnpm --filter server migration:codegen && git diff --exit-code -- apps/server/src/database/types/db.d.ts",
+      "script": "migration:codegen"
+    },
+    {
+      "id": "guardrail-specs",
+      "name": "Security guardrail specs",
+      "description": "Focused run of the specs protecting the security chokepoints: outbound URL guard and network policy, security headers, JWT auth guard, encryption service, no-urls validator. Use during security review.",
+      "severity": "critical",
+      "blocking": false,
+      "enabled": false,
+      "command": "pnpm --filter server test -- \"outbound|security-headers|jwt-auth.guard|encryption.service|no-urls\"",
+      "script": "test"
+    },
+    {
+      "id": "formula-bench",
+      "name": "Base formula benchmark",
+      "description": "Runs packages/base-formula/bench/formula-bench.ts to detect tokenizer/parser/evaluator regressions. Enable only when changing the formula engine.",
+      "severity": "info",
+      "blocking": false,
+      "enabled": false,
+      "command": "pnpm tsx packages/base-formula/bench/formula-bench.ts"
+    },
+    {
+      "id": "container-build",
+      "name": "Container build parity",
+      "description": "Builds the production image the way the Dockerfile does (single-threaded, 3 GB heap) to catch buildkit OOM and missing runtime artifacts. Enable for changes to the Dockerfile, workspace layout, or dependency graph.",
+      "severity": "warning",
+      "blocking": false,
+      "enabled": false,
+      "command": "docker build -t boltplan:sensor-check ."
+    }
+  ]
+}

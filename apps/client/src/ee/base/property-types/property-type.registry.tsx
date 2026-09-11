@@ -74,7 +74,7 @@ export const PROPERTY_TYPE_REGISTRY: Record<
     filterInput: "number",
     isSystem: false,
     hasOptions: true,
-    defaultTypeOptions: () => ({ separators: "local" }),
+    defaultTypeOptions: () => ({ separators: "local", currencyCode: "BRL" }),
   },
   select: {
     type: "select",
@@ -123,6 +123,7 @@ export const PROPERTY_TYPE_REGISTRY: Record<
     filterInput: "date",
     isSystem: false,
     hasOptions: true,
+    defaultTypeOptions: () => ({ dateFormat: "DD/MM/YYYY" }),
   },
   person: {
     type: "person",

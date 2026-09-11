@@ -5,3 +5,4 @@
 **/.env*
 **/.nx
 /.github/infra
+.env.api.prod

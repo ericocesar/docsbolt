@@ -1,6 +1,7 @@
 .env
 .env.dev
 .env.prod
+.env.api.prod
 data
 /.github/infra
 # compiled output
@@ -42,3 +43,10 @@ lerna-debug.log*
 .nx
 .nx/installation
 .nx/cache
+
+# dotcontext runtime state
+.context/plans/
+.context/cache/semantic/
+.context/runtime/
+.context/**/archive/
+
