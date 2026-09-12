@@ -79,7 +79,7 @@ Route surfaces worth remembering when designing: everything is under `/api` **ex
 ## Resource Strategy
 
 - No helper files needed. The live contract is the code: controllers under `core/*` and `ee/*`, DTOs in `dto/`, and `main.ts` for the prefix exclusions.
-- **There is a hand-maintained OpenAPI 3.1 document at `docs/guias/openapi-boltplan.json`** (`Docmost API`, 212 paths). It is *not* generated — `@nestjs/swagger` is not a dependency and nothing derives it from the controllers — so it drifts silently unless updated by hand. Adding or changing an endpoint means updating that file in the same change; treat a mismatch between it and the controllers as a defect.
+- **There is a hand-maintained OpenAPI 3.1 document at `docs/guias/openapi-docsplan.json`** (`Docmost API`, 212 paths). It is *not* generated — `@nestjs/swagger` is not a dependency and nothing derives it from the controllers — so it drifts silently unless updated by hand. Adding or changing an endpoint means updating that file in the same change; treat a mismatch between it and the controllers as a defect.
 - There is no API versioning scheme: endpoints evolve in place and the client is updated in the same change. Do not document a version strategy that does not exist; introducing one is an architecture decision.
 - Keep the client contract in `features/<domain>/{types,services}`; the duplication is intentional, so the server DTO stays authoritative.
 - Cross-reference rather than restate: [architecture.md](../../docs/architecture.md) for boundaries, [security.md](../../docs/security.md) for tokens and scopes, [data-flow.md](../../docs/data-flow.md) for queues and realtime, [glossary.md](../../docs/glossary.md) for enums.

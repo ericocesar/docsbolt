@@ -10,7 +10,7 @@ scaffoldVersion: "2.0.0"
 
 ## Data Flow & Integrations
 
-Data enters `boltplan` through four doors and leaves through three.
+Data enters `docsplan` through four doors and leaves through three.
 
 **In:** (1) HTTP requests to `/api/*` from the SPA and from API-key/OAuth clients; (2) Yjs update messages over the collaboration WebSocket; (3) socket.io events for tree/presence/notification subscriptions; (4) background inputs — imports (Confluence/Notion/Markdown/DOCX zips), SCIM provisioning calls, Stripe webhooks, and MCP tool invocations.
 

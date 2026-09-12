@@ -135,7 +135,7 @@ Before requesting review, the author should be able to answer yes to all of thes
 - **Response shape** — download/export endpoints use `@SkipTransform()`; if a new export path is added, the matching entry goes into `exemptEndpoints` in [api-client.ts](../../apps/client/src/lib/api-client.ts).
 - **Outbound requests** — any URL derived from user input is built through `OutboundUrlGuard` / `OutboundAgentFactory`.
 - **Config** — new environment variables get a getter on `EnvironmentService` and an entry in `.env.example`.
-- **API contract** — `docs/guias/openapi-boltplan.json` is a hand-maintained OpenAPI 3.1 document (212 paths); nothing generates it, so an added or changed endpoint must update it in the same change.
+- **API contract** — `docs/guias/openapi-docsplan.json` is a hand-maintained OpenAPI 3.1 document (212 paths); nothing generates it, so an added or changed endpoint must update it in the same change.
 - **Tests** — new logic ships with a `*.spec.ts` (server, Jest) or `*.test.ts(x)` (client, Vitest); bug fixes ship with a regression test. See [testing-strategy.md](testing-strategy.md).
 - **Client conventions** — API calls live in `features/<domain>/services`, cached through `features/<domain>/queries`; components do not call axios.
 - **i18n** — user-facing strings go through `i18next`, not hard-coded literals (translations sync via Crowdin).

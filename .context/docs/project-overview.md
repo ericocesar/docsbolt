@@ -10,9 +10,9 @@ scaffoldVersion: "2.0.0"
 
 ## Project Overview
 
-`boltplan` is a self-hosted, real-time collaborative wiki and documentation platform — a fork of [Docmost](https://docmost.com) (upstream is tracked as the `upstream` git remote, currently synced to `v0.96.0`). Teams get spaces, nested pages, a rich block editor with concurrent editing, comments, permissions, search, and public documentation portals, all from a single Docker container plus Postgres and Redis.
+`docsplan` is a self-hosted, real-time collaborative wiki and documentation platform — a fork of [Docmost](https://docmost.com) (upstream is tracked as the `upstream` git remote, currently synced to `v0.96.0`). Teams get spaces, nested pages, a rich block editor with concurrent editing, comments, permissions, search, and public documentation portals, all from a single Docker container plus Postgres and Redis.
 
-The fork adds its own branding ("BoltPlan"), sidebar/typography changes, an MCP server for AI agents, and a deploy pipeline targeting Portainer stacks. Enterprise capabilities (AI chat, Bases, SSO/SCIM, MFA, audit/SIEM, page permissions, templates, API keys) live in separately licensed `ee/` trees.
+The fork adds its own branding ("DocsPlan"), sidebar/typography changes, an MCP server for AI agents, and a deploy pipeline targeting Portainer stacks. Enterprise capabilities (AI chat, Bases, SSO/SCIM, MFA, audit/SIEM, page permissions, templates, API keys) live in separately licensed `ee/` trees.
 
 ## Codebase Reference
 
@@ -46,7 +46,7 @@ The fork adds its own branding ("BoltPlan"), sidebar/typography changes, an MCP 
 
 Rather than a flat symbol dump (the snapshot lists 2400+ exports), the meaningful public surfaces are:
 
-- **HTTP API** — described by the hand-maintained OpenAPI 3.1 document `docs/guias/openapi-boltplan.json` (212 paths; not generated, so verify against the code). Everything lives under `/api`, assembled from `core/*` and `ee/*` controllers (e.g. `PageController` → `/api/pages/*`, `SpaceController` → `/api/spaces/*`, `AuthController` → `/api/auth/*`). Unprefixed public routes: `robots.txt`, `share/:shareId/p/:pageSlug`, `docs`, `docs/:spaceSlug`, `docs/:spaceSlug/:pageSlug`, `mcp`, `.well-known/oauth-*`.
+- **HTTP API** — described by the hand-maintained OpenAPI 3.1 document `docs/guias/openapi-docsplan.json` (212 paths; not generated, so verify against the code). Everything lives under `/api`, assembled from `core/*` and `ee/*` controllers (e.g. `PageController` → `/api/pages/*`, `SpaceController` → `/api/spaces/*`, `AuthController` → `/api/auth/*`). Unprefixed public routes: `robots.txt`, `share/:shareId/p/:pageSlug`, `docs`, `docs/:spaceSlug`, `docs/:spaceSlug/:pageSlug`, `mcp`, `.well-known/oauth-*`.
 - **Module aggregates** — `AppModule`, `CoreModule`, `EeModule`, `DatabaseModule`, `CollaborationModule`, `WsModule`, `QueueModule`.
 - **Repositories** — one per aggregate in `apps/server/src/database/repos/*` (`PageRepo`, `SpaceRepo`, `UserRepo`, `WorkspaceRepo`, `CommentRepo`, `AttachmentRepo`, `ShareRepo`, `LabelRepo`, `WatcherRepo`, `TemplateRepo`, …). These are the only sanctioned way to reach Postgres.
 - **Entity types** — `apps/server/src/database/types/entity.types.ts` re-exports `Selectable`/`Insertable`/`Updateable` views over the generated `db.d.ts` tables.

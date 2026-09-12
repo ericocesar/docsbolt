@@ -11,7 +11,7 @@ scaffoldVersion: "2.0.0"
 
 ## Mission
 
-Own the shape of `boltplan` — a pnpm/Nx monorepo running a NestJS-on-Fastify modular monolith plus a React SPA, with Postgres and Redis as tier-0 infrastructure. Engage this agent when work crosses module boundaries, introduces a new integration or driver, changes how tenancy or authorization is enforced, touches the core↔enterprise split, or affects the collaboration (Yjs) write path. The job in Plan and Review phases is to keep the existing seams intact: NestJS modules are the only boundary, `core` never imports `ee`, all SQL goes through Kysely repos, and page content is written through the collaboration utilities.
+Own the shape of `docsplan` — a pnpm/Nx monorepo running a NestJS-on-Fastify modular monolith plus a React SPA, with Postgres and Redis as tier-0 infrastructure. Engage this agent when work crosses module boundaries, introduces a new integration or driver, changes how tenancy or authorization is enforced, touches the core↔enterprise split, or affects the collaboration (Yjs) write path. The job in Plan and Review phases is to keep the existing seams intact: NestJS modules are the only boundary, `core` never imports `ee`, all SQL goes through Kysely repos, and page content is written through the collaboration utilities.
 
 ## Responsibilities
 

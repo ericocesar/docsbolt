@@ -10,7 +10,7 @@ declare global {
 }
 
 export function getAppName(): string {
-  return "BoltPlan";
+  return "DocsPlan";
 }
 
 export function getAppUrl(): string {

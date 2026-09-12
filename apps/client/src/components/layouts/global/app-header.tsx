@@ -84,11 +84,11 @@ export function AppHeader() {
             />
           </Tooltip>
 
-          <Link to="/home" className={classes.brand} aria-label="BoltPlan">
+          <Link to="/home" className={classes.brand} aria-label="DocsPlan">
             <Box hiddenFrom="sm" className={classes.brandIcon}>
               <img
                 src="/icons/favicon-32x32.png"
-                alt="BoltPlan"
+                alt="DocsPlan"
                 width={22}
                 height={22}
               />
@@ -99,7 +99,7 @@ export function AppHeader() {
               style={{ userSelect: "none" }}
               visibleFrom="sm"
             >
-              BoltPlan
+              DocsPlan
             </Text>
           </Link>
 

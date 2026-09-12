@@ -11,7 +11,7 @@ scaffoldVersion: "2.0.0"
 
 ## Mission
 
-Diagnose and fix defects in `boltplan` with a reproduction first and a regression test always. Engage this agent for error reports, incorrect behavior, and "it works locally but not in the container" problems. This codebase has a specific set of recurring failure shapes — tenant resolution, response-envelope mismatches, Redis dependencies, Yjs-vs-REST content races, EE dynamic loading, and Nx cache staleness — and most reported bugs are one of them. Recognizing the shape early is worth more than reading code broadly.
+Diagnose and fix defects in `docsplan` with a reproduction first and a regression test always. Engage this agent for error reports, incorrect behavior, and "it works locally but not in the container" problems. This codebase has a specific set of recurring failure shapes — tenant resolution, response-envelope mismatches, Redis dependencies, Yjs-vs-REST content races, EE dynamic loading, and Nx cache staleness — and most reported bugs are one of them. Recognizing the shape early is worth more than reading code broadly.
 
 ## Responsibilities
 

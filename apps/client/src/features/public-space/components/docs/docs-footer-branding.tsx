@@ -16,7 +16,7 @@ export default function DocsFooterBranding({
         target="_blank"
         rel="noreferrer"
       >
-        Powered by BoltPlan
+        Powered by DocsPlan
       </a>
     </footer>
   );

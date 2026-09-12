@@ -11,7 +11,7 @@ scaffoldVersion: "2.0.0"
 
 ## Mission
 
-**There is no native or cross-platform mobile app in this repository.** No React Native, Expo, Capacitor, Cordova, Swift, or Kotlin code exists in `apps/` or `packages/` — the only client is the React SPA in `apps/client`. What this repo *does* have is an installable, mobile-capable web app: [apps/client/public/manifest.json](../../apps/client/public/manifest.json) declares `display: standalone` for "BoltPlan" with 16/32/192/512 px icons, and [apps/client/index.html](../../apps/client/index.html) sets `width=device-width`, `user-scalable=no`, per-scheme `theme-color`, and the `mobile-web-app-capable` / `apple-mobile-web-app-*` meta tags.
+**There is no native or cross-platform mobile app in this repository.** No React Native, Expo, Capacitor, Cordova, Swift, or Kotlin code exists in `apps/` or `packages/` — the only client is the React SPA in `apps/client`. What this repo *does* have is an installable, mobile-capable web app: [apps/client/public/manifest.json](../../apps/client/public/manifest.json) declares `display: standalone` for "DocsPlan" with 16/32/192/512 px icons, and [apps/client/index.html](../../apps/client/index.html) sets `width=device-width`, `user-scalable=no`, per-scheme `theme-color`, and the `mobile-web-app-capable` / `apple-mobile-web-app-*` meta tags.
 
 So the honest scope of this agent is **mobile web**: making the existing SPA work well on phones and as a home-screen PWA. Engage it for touch interaction, small-viewport layout, responsive behavior, and installability. If someone genuinely wants a native app, that is a new workspace and a new architecture decision — escalate to the architect specialist rather than improvising it here.
 
