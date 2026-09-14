@@ -53,7 +53,21 @@ RUN chown -R node:node /app
 
 USER node
 
-RUN pnpm install --frozen-lockfile --prod && rm -rf /home/node/.cache/pnpm
+# Cap V8 heap and run package scripts serially so node-gyp-build / msgpackr-extract
+# / bcrypt builds don't OOM the BuildKit daemon (EOF = daemon crashed, often
+# memory pressure). The 5-6GiB host default is tight for parallel native builds.
+ENV NODE_OPTIONS="--max-old-space-size=2048"
+ENV npm_config_jobs=1
+ENV npm_config_foreground_scripts=true
+
+# --prod install with --ignore-scripts skips the esbuild `node install.js`
+# postinstall (it tries to fetch a platform binary, which is the typical EOF
+# trigger when the registry connection drops mid-build). Native deps that the
+# runtime actually needs (bcrypt, msgpackr-extract) are rebuilt explicitly after.
+RUN pnpm install --frozen-lockfile --prod --ignore-scripts \
+  && (pnpm rebuild bcrypt msgpackr-extract 2>/dev/null || true) \
+  && rm -rf /home/node/.cache/pnpm \
+  && rm -rf /home/node/.local/share/pnpm/store 2>/dev/null || true
 
 RUN mkdir -p /app/data/storage
 
