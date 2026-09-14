@@ -2,7 +2,7 @@ import { useRef } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useAtom } from "jotai";
 import { useTranslation } from "react-i18next";
-import { ActionIcon, rem, Tooltip } from "@mantine/core";
+import { ActionIcon, Tooltip } from "@mantine/core";
 import {
   IconChevronDown,
   IconChevronRight,
@@ -298,9 +298,9 @@ function CreateNode({
 
   return (
     <ActionIcon
-      variant="subtle"
-      color="gray"
-      className={classes.actionIcon}
+      variant="default"
+      size={18}
+      className={classes.actionsIconButton}
       aria-label={t("Create subpage of {{name}}", { name: node.name || t("untitled") })}
       tabIndex={-1}
       onClick={(e) => {
@@ -309,7 +309,7 @@ function CreateNode({
         handleClickCreate();
       }}
     >
-      <IconPlus style={{ width: rem(20), height: rem(20) }} stroke={2} />
+      <IconPlus size={14} stroke={2} />
     </ActionIcon>
   );
 }

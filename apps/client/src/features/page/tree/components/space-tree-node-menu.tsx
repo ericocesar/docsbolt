@@ -1,7 +1,7 @@
 import { useAtom } from "jotai";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
-import { ActionIcon, Menu, rem } from "@mantine/core";
+import { ActionIcon, Menu } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
 import {
@@ -125,9 +125,9 @@ export function NodeMenu({ node, canEdit }: NodeMenuProps) {
       <Menu shadow="md" width={200}>
         <Menu.Target>
           <ActionIcon
-            variant="subtle"
-            color="gray"
-            className={classes.actionIcon}
+            variant="default"
+            size={18}
+            className={classes.actionsIconButton}
             aria-label={t("Page menu for {{name}}", { name: getPageTitle(node.name, node.isBase, t) })}
             tabIndex={-1}
             onClick={(e) => {
@@ -135,10 +135,7 @@ export function NodeMenu({ node, canEdit }: NodeMenuProps) {
               e.stopPropagation();
             }}
           >
-            <IconDotsVertical
-              style={{ width: rem(20), height: rem(20) }}
-              stroke={2}
-            />
+            <IconDotsVertical size={14} stroke={2} />
           </ActionIcon>
         </Menu.Target>
 

@@ -71,6 +71,35 @@
     color: light-dark(var(--mantine-color-dark-3), var(--mantine-color-gray-4));
 }
 
+/* Botao de icone quadrado estilo header "Paginas" com hover cinza mais escuro
+   e leve animacao (scale + sombra). Aplicada via classes.actionsIconButton. */
+.actionsIconButton {
+    transition:
+        background-color 160ms ease,
+        color 160ms ease,
+        transform 180ms cubic-bezier(0.34, 1.56, 0.64, 1),
+        box-shadow 180ms ease;
+    /* Vars do Mantine controlam o fundo do variant=default; alteramos no hover
+       para escurecer, e somamos transform/sombra que nao estao no Mantine. */
+    --ai-bg: light-dark(var(--mantine-color-gray-4), var(--mantine-color-dark-4));
+    --ai-hover: light-dark(var(--mantine-color-gray-5), var(--mantine-color-dark-3));
+    --ai-hover-color: light-dark(var(--mantine-color-dark-9), var(--mantine-color-gray-0));
+}
+
+.actionsIconButton:hover {
+    background-color: light-dark(
+        var(--mantine-color-gray-5),
+        var(--mantine-color-dark-3)
+    );
+    color: light-dark(var(--mantine-color-dark-9), var(--mantine-color-gray-0));
+    transform: scale(1.08);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+}
+
+.actionsIconButton:active {
+    transform: scale(0.94);
+}
+
 .text {
     flex: 1;
     /* min-width: 0 lets a flex child shrink below its content size — required
