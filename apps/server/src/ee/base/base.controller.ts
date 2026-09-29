@@ -24,6 +24,7 @@ import {
   DeleteRowDto,
   DeleteRowsDto,
   DeleteViewDto,
+  ExpandPagesDto,
   GetRowDto,
   ListRowsDto,
   ListViewsDto,
@@ -259,6 +260,27 @@ export class BaseController {
     @AuthWorkspace() workspace: Workspace,
   ) {
     return this.baseService.reorderRow(user.id, workspace.id, body);
+  }
+
+  // Resolve page UUIDs from base cell values back to displayable pages.
+  // Called by CellPage's PagePicker when a saved page id is not yet in
+  // the client reference store (e.g. just selected, or loaded from another
+  // session). Without this endpoint the picker shows an empty cell after
+  // every selection because the resolve query 404s.
+  @HttpCode(HttpStatus.OK)
+  @Post('bases/pages/expand')
+  @OAuthScope('read')
+  async expandPages(
+    @Body() body: ExpandPagesDto,
+    @AuthUser() user: User,
+    @AuthWorkspace() workspace: Workspace,
+  ) {
+    const items = await this.baseService.expandPages(
+      workspace.id,
+      user.id,
+      body.pageIds,
+    );
+    return { items };
   }
 
   // ---------- views ----------

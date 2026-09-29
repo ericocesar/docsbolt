@@ -211,6 +211,12 @@ export class GetRowDto {
   pageId: string;
 }
 
+export class ExpandPagesDto {
+  @IsArray()
+  @IsUUID('all', { each: true })
+  pageIds: string[];
+}
+
 export class UpdateRowDto {
   @IsUUID()
   rowId: string;

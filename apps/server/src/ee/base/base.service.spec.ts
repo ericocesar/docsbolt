@@ -22,6 +22,7 @@ import * as path from 'path';
 
 import { BaseService } from './base.service';
 import { PageRepo } from '../../database/repos/page/page.repo';
+import { PagePermissionRepo } from '../../database/repos/page/page-permission.repo';
 import { generateBasePropertyId } from '../../common/helpers/nanoid.utils';
 import { generateJitteredKeyBetween } from 'fractional-indexing-jittered';
 
@@ -145,7 +146,7 @@ describeDb('BaseService jsonb patch-merge semantics', () => {
       .executeTakeFirstOrThrow();
     spaceId = space.id;
 
-    service = new BaseService(db as any, {} as PageRepo);
+    service = new BaseService(db as any, {} as PageRepo, {} as PagePermissionRepo);
   });
 
   afterAll(async () => {

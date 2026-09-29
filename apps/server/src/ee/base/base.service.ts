@@ -6,8 +6,10 @@ import {
 } from '@nestjs/common';
 import { InjectKysely } from 'nestjs-kysely';
 import { sql } from 'kysely';
+import { jsonObjectFrom } from 'kysely/helpers/postgres';
 import { KyselyDB, KyselyTransaction } from '../../database/types/kysely.types';
 import { PageRepo } from '../../database/repos/page/page.repo';
+import { PagePermissionRepo } from '../../database/repos/page/page-permission.repo';
 import { generateBasePropertyId, generateSlugId } from '../../common/helpers/nanoid.utils';
 import { generateJitteredKeyBetween } from 'fractional-indexing-jittered';
 
@@ -25,6 +27,7 @@ export class BaseService {
   constructor(
     @InjectKysely() private readonly db: KyselyDB,
     private readonly pageRepo: PageRepo,
+    private readonly pagePermissionRepo: PagePermissionRepo,
   ) {}
 
   // ---------- helpers ----------
@@ -587,6 +590,47 @@ export class BaseService {
 
     if (!row) throw new NotFoundException('Row not found');
     return row;
+  }
+
+  /**
+   * Resolve a batch of page UUIDs to the minimal page payload the picker
+   * needs to render a link (id, slugId, title, icon, space). Filters out
+   * pages the caller cannot access so a row referencing a page they have
+   * lost permission to doesn't leak its title into another session.
+   */
+  async expandPages(
+    workspaceId: string,
+    userId: string,
+    pageIds: string[],
+  ) {
+    if (pageIds.length === 0) return [];
+    const unique = Array.from(new Set(pageIds));
+    const accessibleIds = await this.pagePermissionRepo.filterAccessiblePageIds(
+      { pageIds: unique, userId },
+    );
+    if (accessibleIds.length === 0) return [];
+    // Use the raw page table here (not pageRepo.findManyByIds) so the
+    // returned rows carry the joined space needed to build the link.
+    return this.db
+      .selectFrom('pages')
+      .select([
+        'pages.id as id',
+        'pages.slugId as slugId',
+        'pages.title as title',
+        'pages.icon as icon',
+        'pages.spaceId as spaceId',
+        (eb) =>
+          jsonObjectFrom(
+            eb
+              .selectFrom('spaces')
+              .select(['spaces.id', 'spaces.name', 'spaces.slug'])
+              .whereRef('spaces.id', '=', 'pages.spaceId'),
+          ).as('space'),
+      ])
+      .where('pages.id', 'in', accessibleIds)
+      .where('pages.workspaceId', '=', workspaceId)
+      .where('pages.deletedAt', 'is', null)
+      .execute();
   }
 
   async updateRow(
