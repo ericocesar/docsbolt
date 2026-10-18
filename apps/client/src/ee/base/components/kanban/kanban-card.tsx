@@ -3,6 +3,7 @@ import clsx from "clsx";
 import { useTranslation } from "react-i18next";
 import { IBase, IBaseRow, IBaseView } from "@/ee/base/types/base.types";
 import { CardField } from "@/ee/base/components/kanban/card-field/card-field";
+import { resolveTitleProperty } from "@/ee/base/utils/resolve-title-property";
 import { useKanbanCardDnd } from "@/ee/base/hooks/use-kanban-card-dnd";
 import { BaseDropEdgeIndicator } from "@/ee/base/components/grid/base-drop-edge-indicator";
 import classes from "@/ee/base/styles/kanban.module.css";
@@ -18,14 +19,19 @@ type KanbanCardProps = {
 export const KanbanCard = forwardRef<HTMLDivElement, KanbanCardProps>(
   function KanbanCard({ base, view, row, columnKey, onOpen }, ref) {
     const { t } = useTranslation();
-    const primary = base.properties.find((p) => p.isPrimary);
-    const title = primary ? (row.cells[primary.id] as string | undefined) : undefined;
+    const titleProperty = resolveTitleProperty(base.properties);
+    const title = titleProperty
+      ? (row.cells[titleProperty.id] as string | undefined)
+      : undefined;
 
     const visibleIds = view.config?.visiblePropertyIds ?? [];
     const propertyOrder = view.config?.propertyOrder;
 
     const cardProps = base.properties.filter(
-      (p) => visibleIds.includes(p.id) && !p.isPrimary,
+      (p) =>
+        visibleIds.includes(p.id) &&
+        !p.isPrimary &&
+        p.id !== titleProperty?.id,
     );
 
     if (propertyOrder) {

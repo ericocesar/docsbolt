@@ -6,7 +6,7 @@ import classes from "@/ee/base/styles/row-detail-modal.module.css";
 
 type RowDetailTitleProps = {
   row: IBaseRow;
-  primaryProperty: IBaseProperty | undefined;
+  titleProperty: IBaseProperty | undefined;
   canEdit: boolean;
   onCommit: (value: string) => void;
   onEditingChange?: (editing: boolean) => void;
@@ -14,14 +14,14 @@ type RowDetailTitleProps = {
 
 export function RowDetailTitle({
   row,
-  primaryProperty,
+  titleProperty,
   canEdit,
   onCommit,
   onEditingChange,
 }: RowDetailTitleProps) {
   const { t } = useTranslation();
-  const initial = primaryProperty
-    ? (((row.cells ?? {})[primaryProperty.id] as string) ?? "")
+  const initial = titleProperty
+    ? (((row.cells ?? {})[titleProperty.id] as string) ?? "")
     : "";
   const [value, setValue] = useState(initial);
   const cancelRef = useRef(false);
@@ -51,7 +51,7 @@ export function RowDetailTitle({
           className={classes.titleInput}
           {...(!initial ? { "data-autofocus": true } : {})}
           placeholder={t("Untitled")}
-          aria-label={primaryProperty?.name ?? t("Untitled")}
+          aria-label={titleProperty?.name ?? t("Untitled")}
           value={value}
           maxLength={1000}
           onFocus={() => {

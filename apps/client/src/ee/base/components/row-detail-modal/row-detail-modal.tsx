@@ -26,6 +26,7 @@ import { getDescriptor } from "@/ee/base/property-types/property-type.registry";
 import { useBaseEditable } from "@/ee/base/context/base-editable";
 import { useClipboard } from "@/hooks/use-clipboard";
 import { CreatePropertyPopover } from "@/ee/base/components/property/create-property-popover";
+import { resolveTitleProperty } from "@/ee/base/utils/resolve-title-property";
 import { RowDetailTitle } from "./row-detail-title";
 import { PropertyRow } from "./property-row";
 import classes from "@/ee/base/styles/row-detail-modal.module.css";
@@ -63,8 +64,10 @@ export function RowDetailModal({
     enabled: !!openRowId && !rowFromList,
   });
   const row = rowFromList ?? rowQuery.data;
-  const primaryProperty = useMemo(
-    () => base.properties.find((p) => p.isPrimary),
+  // The header renders the title property; it is excluded from the field list
+  // below so its value isn't shown twice.
+  const titleProperty = useMemo(
+    () => resolveTitleProperty(base.properties),
     [base.properties],
   );
 
@@ -293,15 +296,15 @@ export function RowDetailModal({
 
           <RowDetailTitle
             row={row}
-            primaryProperty={primaryProperty}
+            titleProperty={titleProperty}
             canEdit={canEdit}
             onEditingChange={setEditingField}
             onCommit={(value) => {
-              if (!primaryProperty) return;
+              if (!titleProperty) return;
               updateRowMutation.mutate({
                 rowId: row.id,
                 pageId: base.id,
-                cells: { [primaryProperty.id]: value },
+                cells: { [titleProperty.id]: value },
               });
             }}
           />
@@ -309,7 +312,7 @@ export function RowDetailModal({
           <div className={classes.body}>
             <div className={classes.propertyList}>
               {base.properties
-                .filter((p) => !p.isPrimary)
+                .filter((p) => !p.isPrimary && p.id !== titleProperty?.id)
                 .map((property) => (
                   <PropertyRow
                     key={property.id}
@@ -416,6 +419,10 @@ export function RowDetailModal({
  *  render the real labels and shimmer only the unknown values. Matching the
  *  final layout avoids a size jump when the row arrives. */
 function RowDetailSkeleton({ base }: { base: IBase }) {
+  // Mirror the loaded body: the title property renders in the header, not as a
+  // field, so it must be excluded here or the layout shifts on hydration.
+  const titleProperty = resolveTitleProperty(base.properties);
+
   return (
     <>
       <div className={classes.topBar}>
@@ -437,7 +444,7 @@ function RowDetailSkeleton({ base }: { base: IBase }) {
       <div className={classes.body}>
         <div className={classes.propertyList}>
           {base.properties
-            .filter((p) => !p.isPrimary)
+            .filter((p) => !p.isPrimary && p.id !== titleProperty?.id)
             .map((property) => {
               const Icon = getDescriptor(property.type)?.icon;
               return (
