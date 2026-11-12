@@ -44,7 +44,7 @@ export class OidcLoginController {
       path: '/',
       maxAge: 300,
     });
-    return reply.redirect(result.url);
+    return reply.code(302).redirect(result.url);
   }
 
   @Get(':providerId/callback')
@@ -72,6 +72,6 @@ export class OidcLoginController {
       expires: this.environment.getCookieExpiresIn(),
       secure: this.environment.isHttps(),
     });
-    return reply.redirect('/');
+    return reply.code(302).redirect('/');
   }
 }
