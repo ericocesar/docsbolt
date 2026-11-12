@@ -29,15 +29,20 @@ export class SsoService {
     return out;
   }
 
-  private decryptSecrets(row: Record<string, any>): Record<string, any> {
+  private redactSecrets(row: Record<string, any>): Record<string, any> {
     const out: Record<string, any> = { ...row };
     for (const f of SECRET_FIELDS) {
-      if (typeof out[f] === 'string' && out[f]) {
-        try {
-          out[f] = this.encryption.decrypt(out[f]);
-        } catch {
-          // leave as-is
+      if (f === 'samlCertificate' || f === 'ldapTlsCaCert') {
+        if (out[f]) {
+          try {
+            out[f] = this.encryption.decrypt(out[f]);
+          } catch {
+            // Preserve compatibility with certificates created before encryption.
+          }
         }
+      } else {
+        out[`${f}Configured`] = Boolean(out[f]);
+        delete out[f];
       }
     }
     return out;
@@ -52,7 +57,7 @@ export class SsoService {
       .orderBy('createdAt', 'asc')
       .execute();
     return {
-      items: items.map((i) => this.decryptSecrets(i)),
+      items: items.map((i) => this.redactSecrets(i)),
       meta: {
         limit: 50,
         hasNextPage: false,
@@ -80,7 +85,7 @@ export class SsoService {
       } as any)
       .returningAll()
       .executeTakeFirstOrThrow();
-    return this.decryptSecrets(row);
+    return this.redactSecrets(row);
   }
 
   async update(workspaceId: string, dto: UpdateSsoProviderDto) {
@@ -94,7 +99,7 @@ export class SsoService {
       .returningAll()
       .executeTakeFirst();
     if (!row) throw new NotFoundException('Provider not found');
-    return this.decryptSecrets(row);
+    return this.redactSecrets(row);
   }
 
   async delete(workspaceId: string, providerId: string) {

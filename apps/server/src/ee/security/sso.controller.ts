@@ -11,13 +11,16 @@ import { AuthUser } from '../../common/decorators/auth-user.decorator';
 import { AuthWorkspace } from '../../common/decorators/auth-workspace.decorator';
 import { User, Workspace } from '@docmost/db/types/entity.types';
 import { SsoService } from './sso.service';
+import { SsoAdminGuard } from './sso-admin.guard';
+import { RequireSessionAuth } from '../../common/decorators/require-session-auth.decorator';
 import {
   CreateSsoProviderDto,
   ProviderIdDto,
   UpdateSsoProviderDto,
 } from './dto';
 
-@UseGuards(JwtAuthGuard)
+@RequireSessionAuth()
+@UseGuards(JwtAuthGuard, SsoAdminGuard)
 @Controller('sso')
 export class SsoController {
   constructor(private readonly service: SsoService) {}
@@ -55,10 +58,7 @@ export class SsoController {
 
   @HttpCode(HttpStatus.OK)
   @Post('delete')
-  delete(
-    @AuthWorkspace() workspace: Workspace,
-    @Body() body: ProviderIdDto,
-  ) {
+  delete(@AuthWorkspace() workspace: Workspace, @Body() body: ProviderIdDto) {
     return this.service.delete(workspace.id, body.providerId);
   }
 }

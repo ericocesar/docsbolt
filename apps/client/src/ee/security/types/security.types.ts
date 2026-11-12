@@ -9,9 +9,11 @@ export interface IAuthProvider {
   oidcIssuer: string;
   oidcClientId: string;
   oidcClientSecret: string;
+  oidcClientSecretConfigured?: boolean;
   ldapUrl: string;
   ldapBindDn: string;
   ldapBindPassword: string;
+  ldapBindPasswordConfigured?: boolean;
   ldapBaseDn: string;
   ldapUserSearchFilter: string;
   ldapUserAttributes: any;

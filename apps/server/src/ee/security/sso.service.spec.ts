@@ -68,13 +68,15 @@ describe('SsoService', () => {
     expect(fake.inserted[0].oidcClientSecret).toMatch(/^enc::/);
   });
 
-  it('returned provider decrypts secrets back to plaintext', async () => {
+  it('never returns provider secrets in management responses', async () => {
     const res = await service.create('user-1', 'ws-1', {
       name: 'Okta',
       type: 'oidc',
       oidcClientSecret: 'topsecret',
     } as any);
-    expect(res.oidcClientSecret).toBe('topsecret');
+    expect(res.oidcClientSecret).toBeUndefined();
+    const listed = await service.list('ws-1');
+    expect(listed.items[0].oidcClientSecret).toBeUndefined();
   });
 
   it('list does not crash and returns pagination envelope', async () => {

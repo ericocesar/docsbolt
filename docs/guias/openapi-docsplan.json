@@ -169,6 +169,26 @@
     }
   ],
   "paths": {
+    "/sso/oidc/{providerId}/login": {
+      "get": {
+        "tags": ["Auth"],
+        "summary": "Begin OIDC login",
+        "description": "Starts a short-lived browser-bound OIDC authorization-code flow with PKCE.",
+        "security": [],
+        "parameters": [{"name": "providerId", "in": "path", "required": true, "schema": {"type": "string", "format": "uuid"}}],
+        "responses": {"302": {"description": "Redirect to the identity provider"}, "401": {"description": "Provider unavailable"}}
+      }
+    },
+    "/sso/oidc/{providerId}/callback": {
+      "get": {
+        "tags": ["Auth"],
+        "summary": "Complete OIDC login",
+        "description": "Validates the one-time browser state, PKCE, nonce and ID token before issuing a session cookie.",
+        "security": [],
+        "parameters": [{"name": "providerId", "in": "path", "required": true, "schema": {"type": "string", "format": "uuid"}}, {"name": "state", "in": "query", "required": true, "schema": {"type": "string"}}, {"name": "code", "in": "query", "required": true, "schema": {"type": "string"}}],
+        "responses": {"302": {"description": "Redirect to the application after setting the session cookie"}, "401": {"description": "Authentication failed"}}
+      }
+    },
     "/auth/login": {
       "post": {
         "operationId": "login",

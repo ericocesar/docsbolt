@@ -23,7 +23,7 @@ const ssoSchema = z.object({
   name: z.string().min(1, "Display name is required"),
   ldapUrl: z.string().url().startsWith("ldap", "Must be an LDAP URL"),
   ldapBindDn: z.string().min(1, "Bind DN is required"),
-  ldapBindPassword: z.string().min(1, "Bind password is required"),
+  ldapBindPassword: z.string(),
   ldapBaseDn: z.string().min(1, "Base DN is required"),
   ldapUserSearchFilter: z.string().optional(),
   ldapTlsEnabled: z.boolean(),
@@ -49,7 +49,7 @@ export function SsoLDAPForm({ provider, onClose }: SsoFormProps) {
       name: provider.name || "",
       ldapUrl: provider.ldapUrl || "",
       ldapBindDn: provider.ldapBindDn || "",
-      ldapBindPassword: provider.ldapBindPassword || "",
+      ldapBindPassword: "",
       ldapBaseDn: provider.ldapBaseDn || "",
       ldapUserSearchFilter:
         provider.ldapUserSearchFilter || "(mail={{username}})",
@@ -63,6 +63,10 @@ export function SsoLDAPForm({ provider, onClose }: SsoFormProps) {
   });
 
   const handleSubmit = async (values: SSOFormValues) => {
+    if (!provider.ldapBindPasswordConfigured && !values.ldapBindPassword) {
+      form.setFieldError("ldapBindPassword", "Bind password is required");
+      return;
+    }
     const ssoData: Partial<IAuthProvider> = {
       providerId: provider.id,
     };
@@ -75,7 +79,7 @@ export function SsoLDAPForm({ provider, onClose }: SsoFormProps) {
     if (form.isDirty("ldapBindDn")) {
       ssoData.ldapBindDn = values.ldapBindDn;
     }
-    if (form.isDirty("ldapBindPassword")) {
+    if (form.isDirty("ldapBindPassword") && values.ldapBindPassword) {
       ssoData.ldapBindPassword = values.ldapBindPassword;
     }
     if (form.isDirty("ldapBaseDn")) {
@@ -132,7 +136,11 @@ export function SsoLDAPForm({ provider, onClose }: SsoFormProps) {
 
           <TextInput
             label="Bind Password"
-            description="Password for the service account"
+            description={
+              provider.ldapBindPasswordConfigured
+                ? "Leave blank to keep the current password"
+                : "Password for the service account"
+            }
             type="password"
             placeholder="••••••••"
             {...form.getInputProps("ldapBindPassword")}

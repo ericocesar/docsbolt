@@ -14,7 +14,7 @@ const ssoSchema = z.object({
   name: z.string().min(1, "Display name is required"),
   oidcIssuer: z.string().url(),
   oidcClientId: z.string().min(1, "Client id is required"),
-  oidcClientSecret: z.string().min(1, "Client secret is required"),
+  oidcClientSecret: z.string(),
   isEnabled: z.boolean(),
   allowSignup: z.boolean(),
   groupSync: z.boolean(),
@@ -35,7 +35,7 @@ export function SsoOIDCForm({ provider, onClose }: SsoFormProps) {
       name: provider.name || "",
       oidcIssuer: provider.oidcIssuer || "",
       oidcClientId: provider.oidcClientId || "",
-      oidcClientSecret: provider.oidcClientSecret || "",
+      oidcClientSecret: "",
       isEnabled: provider.isEnabled,
       allowSignup: provider.allowSignup,
       groupSync: provider.groupSync || false,
@@ -49,6 +49,10 @@ export function SsoOIDCForm({ provider, onClose }: SsoFormProps) {
   });
 
   const handleSubmit = async (values: SSOFormValues) => {
+    if (!provider.oidcClientSecretConfigured && !values.oidcClientSecret) {
+      form.setFieldError("oidcClientSecret", "Client secret is required");
+      return;
+    }
     const ssoData: Partial<IAuthProvider> = {
       providerId: provider.id,
     };
@@ -61,7 +65,7 @@ export function SsoOIDCForm({ provider, onClose }: SsoFormProps) {
     if (form.isDirty("oidcClientId")) {
       ssoData.oidcClientId = values.oidcClientId;
     }
-    if (form.isDirty("oidcClientSecret")) {
+    if (form.isDirty("oidcClientSecret") && values.oidcClientSecret) {
       ssoData.oidcClientSecret = values.oidcClientSecret;
     }
     if (form.isDirty("isEnabled")) {
@@ -111,15 +115,25 @@ export function SsoOIDCForm({ provider, onClose }: SsoFormProps) {
           />
           <TextInput
             label="Client Secret"
-            description="Enter your OIDC Client Secret"
-            placeholder="e.g OCSPX-zVCkotEPGRnJA1XKUrbgjlf7PQQ-"
+            type="password"
+            description={
+              provider.oidcClientSecretConfigured
+                ? "Leave blank to keep the current secret"
+                : "Enter your OIDC Client Secret"
+            }
+            placeholder={
+              provider.oidcClientSecretConfigured
+                ? "Secret configured"
+                : "Client secret"
+            }
             {...form.getInputProps("oidcClientSecret")}
           />
 
           <Group justify="space-between">
-            <div>{t("Group sync")}</div>
+            <div>{t("Group sync")} (not available for OIDC)</div>
             <Switch
               className={classes.switch}
+              disabled
               checked={form.values.groupSync}
               {...form.getInputProps("groupSync")}
             />
